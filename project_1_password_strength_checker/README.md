@@ -6,6 +6,20 @@ This repository serves as a complete project submission for a Cyber Security Int
 
 ---
 
+## 📸 Screenshots & Previews
+
+Here are visual previews of the interactive interfaces for this project:
+
+### 1. Web Landing Page UI Dashboard
+![Web Landing Page Preview](assets/web_preview.png)
+*A dark-mode glassmorphism web panel displaying real-time checklist feedback, variety scores, and warning messages.*
+
+### 2. Terminal CLI Interface
+![CLI Console Preview](assets/cli_preview.png)
+*A command-line terminal output displaying colorized, structured security logs and recommendations.*
+
+---
+
 ## 📂 Project Folder Structure
 
 The project has been structured professionally to represent clean, production-grade software development practices:
