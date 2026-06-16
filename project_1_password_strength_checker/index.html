@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Checker | Cyber Security Project</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <main class="container">
+        <!-- Header Section -->
+        <header class="main-header">
+            <div class="logo">
+                <i class="fa-solid fa-shield-halved security-glow"></i>
+            </div>
+            <h1>Password Strength Checker</h1>
+            <p class="subtitle">Cyber Security Internship Project 1</p>
+        </header>
+
+        <!-- Two-Column Layout -->
+        <div class="layout-grid">
+            <!-- Left Column: Checker App -->
+            <section class="card glass checker-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-key-skeleton"></i> Security Evaluator</h2>
+                    <p>Enter your credentials to run defensive validation checks</p>
+                </div>
+                
+                <form id="checker-form" onsubmit="event.preventDefault();">
+                    <!-- Email Address Input -->
+                    <div class="form-group">
+                        <label for="email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+                        <input type="email" id="email" placeholder="e.g. user123@gmail.com" required>
+                        <span class="field-error" id="email-error"></span>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="form-group">
+                        <label for="password"><i class="fa-regular fa-lock-keyhole"></i> Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" placeholder="e.g. Secure@123" required>
+                            <button type="button" id="toggle-password" title="Toggle Password Visibility">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Real-time Checker Checklist -->
+                <div class="checker-requirements">
+                    <h3>Character Variety Requirements:</h3>
+                    <ul>
+                        <li id="req-length" class="req-item"><i class="fa-regular fa-circle"></i> At least 8 characters</li>
+                        <li id="req-upper" class="req-item"><i class="fa-regular fa-circle"></i> One uppercase letter (A-Z)</li>
+                        <li id="req-lower" class="req-item"><i class="fa-regular fa-circle"></i> One lowercase letter (a-z)</li>
+                        <li id="req-digit" class="req-item"><i class="fa-regular fa-circle"></i> One digit (0-9)</li>
+                        <li id="req-special" class="req-item"><i class="fa-regular fa-circle"></i> One special character (@ # $ % ^ & * ! ? _ -)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Right Column: Results & Feedback -->
+            <section class="card glass result-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-list-check"></i> Security Report</h2>
+                    <p>Real-time security analysis & acceptance status</p>
+                </div>
+
+                <!-- Dynamic Shield Display -->
+                <div class="status-shield-wrapper">
+                    <div id="status-shield" class="status-shield state-initial">
+                        <i id="shield-icon" class="fa-solid fa-shield-slash"></i>
+                    </div>
+                    <div class="strength-info">
+                        <span id="strength-label">Awaiting Input</span>
+                        <div class="status-badge" id="status-badge">N/A</div>
+                    </div>
+                </div>
+
+                <!-- Score Progress Bar -->
+                <div class="progress-section">
+                    <div class="progress-labels">
+                        <span>Variety Score</span>
+                        <span id="score-text">0 / 6</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Alert & Tips Panel -->
+                <div class="feedback-panel" id="feedback-panel">
+                    <div class="feedback-placeholder">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p>Fill in your email and password to begin a comprehensive threat assessment.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Documentation & Concepts Grid -->
+        <section class="card glass doc-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-graduation-cap"></i> Cybersecurity Internship Report Summary</h2>
+                <p>Learn about the defensive algorithms, concepts, and interview questions related to this project</p>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab(event, 'concepts')">Cybersecurity Concepts</button>
+                <button class="tab-btn" onclick="openTab(event, 'heuristics')">Defensive Heuristics</button>
+                <button class="tab-btn" onclick="openTab(event, 'interview')">Interview Q&A</button>
+            </div>
+
+            <!-- Tab 1: Cybersecurity Concepts -->
+            <div id="concepts" class="tab-content active">
+                <div class="doc-grid">
+                    <div class="doc-item">
+                        <h4><i class="fa-solid fa-chart-line"></i> Shannon Entropy</h4>
+                        <p>Measures the uncertainty of a password. Defined mathematically as \(E = L \times \log_2(R)\), where \(L\) is the password length and \(R\) is the character pool size. Incorporating digits, casing, and special symbols increases \(R\), raising brute-force cracking difficulty exponentially.</p>
+                    </div>
+                    <div class="doc-item">
+                        <h4><i class="fa-solid fa-ban"></i> Dictionary Attacks</h4>
+                        <p>Attackers use wordlists of precomputed weak passwords. Our application uses a separate <strong>blacklist</strong> database loaded dynamically to check and immediately block these vulnerability entries.</p>
+                    </div>
+                    <div class="doc-item">
+                        <h4><i class="fa-solid fa-users-viewfinder"></i> OSINT & Social Engineering</h4>
+                        <p>Users commonly structure passwords using public details like email usernames. Rejection of email-derived strings (e.g. splitting `abc22@gmail` and blocking `abc`, `22`, `abc22`) counters profiling vectors.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Defensive Heuristics -->
+            <div id="heuristics" class="tab-content">
+                <div class="doc-grid">
+                    <div class="doc-item">
+                        <h4><i class="fa-solid fa-rotate"></i> Repeating Pattern Checks</h4>
+                        <p>Flags identical consecutive character lines (like `aaaaaa`) and sliding pattern loops (like `12121212` or `abcabcabc`) to protect against custom pattern-guessing tools.</p>
+                    </div>
+                    <div class="doc-item">
+                        <h4><i class="fa-solid fa-arrow-trend-up"></i> Sequential Scans</h4>
+                        <p>Checks character windows of length 5 against alphabetical lists, digits, and keyboard layouts (`qwertyuiop`, `asdfghjkl`, `zxcvbnm` and reverses) to reject easy keyboard walks.</p>
+                    </div>
+                    <div class="doc-item">
+                        <h4><i class="fa-solid fa-shield-check"></i> Modular Design</h4>
+                        <p>The code segregates user interfaces from the checking logic. This architecture allows developers to swap, scale, or integrate checks easily (e.g. calling HaveIBeenPwned API).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Interview Q&A -->
+            <div id="interview" class="tab-content">
+                <div class="qa-list">
+                    <div class="qa-item">
+                        <h5>Q1: Why reject a password immediately instead of just assigning a low score?</h5>
+                        <p><strong>A:</strong> Severe structural flaws (like length < 8, blacklist matches, or keyboard walks) are vulnerabilities so extreme that character variety cannot compensate. Blocking them immediately prevents a false sense of security.</p>
+                    </div>
+                    <div class="qa-item">
+                        <h5>Q2: How does a special character or number increase resistance mathematically?</h5>
+                        <p><strong>A:</strong> By expanding the character pool (\(R\)) from 26 (lowercase letters only) to 94 (alphanumeric and symbols), the total pool combinations for an 8-char password increases from \(26^8 \approx 2 \times 10^{11}\) to \(94^8 \approx 6 \times 10^{15}\), making brute-force cracking exponentially slower.</p>
+                    </div>
+                    <div class="qa-item">
+                        <h5>Q3: How do attackers exploit email-derived credentials?</h5>
+                        <p><strong>A:</strong> In credential stuffing attacks, bots combine usernames found in leaked databases with standard modifiers (like appending years or special characters) to guess passwords. Email-derived filtering neutralizes this.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <p>&copy; 2026 Priyanka | Cyber Security Internship Submission</p>
+    </footer>
+
+    <!-- MathJax for LaTeX equations -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Script -->
+    <script src="app.js"></script>
+</body>
+</html>
