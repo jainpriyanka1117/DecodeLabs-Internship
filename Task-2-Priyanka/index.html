@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Vigenère Cipher System | Cyber Security Project</title>
+    <!-- Meta Descriptions for SEO -->
+    <meta name="description" content="An interactive web-based implementation of the polyalphabetic Vigenère Cipher. Encrypt and decrypt text in real-time with step-by-step visual calculations.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background Glow Elements -->
+    <div class="glow-sphere glow-sphere-1"></div>
+    <div class="glow-sphere glow-sphere-2"></div>
+
+    <header class="cyber-header">
+        <div class="header-container">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved cyber-icon"></i>
+                <div class="brand-text">
+                    <h1>VIGENÈRE <span class="accent-text">SHIELD</span></h1>
+                    <span class="sub-brand">Cyber Security Portfolio | Task-2-Priyanka</span>
+                </div>
+            </div>
+            <div class="status-badge">
+                <span class="pulse-dot"></span>
+                <span>SECURE ENGINES ACTIVE</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="cyber-container">
+        <!-- Interactive Dashboard -->
+        <section class="dashboard-grid">
+            <!-- Configuration Column -->
+            <div class="cyber-card glass-panel" id="config-panel">
+                <div class="card-header">
+                    <i class="fa-solid fa-sliders header-icon"></i>
+                    <h2>CIPHER CONTROLLER</h2>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Mode Switcher -->
+                    <div class="form-group">
+                        <label>Select Operation Mode</label>
+                        <div class="mode-toggle-group">
+                            <button type="button" class="mode-btn active" id="mode-encrypt" onclick="setMode('encrypt')">
+                                <i class="fa-solid fa-lock"></i> Encrypt
+                            </button>
+                            <button type="button" class="mode-btn" id="mode-decrypt" onclick="setMode('decrypt')">
+                                <i class="fa-solid fa-lock-open"></i> Decrypt
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Keyword Input -->
+                    <div class="form-group">
+                        <label for="cipher-key">Secret Keyword <span class="help-label">(Alphabetic only)</span></label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="text" id="cipher-key" placeholder="e.g., SECRETKEY" autocomplete="off" oninput="processCipher()">
+                        </div>
+                        <span class="validation-error" id="key-error">Keyword must contain only alphabetic characters.</span>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div class="form-group">
+                        <label for="cipher-input" id="input-label">Message / Plaintext</label>
+                        <textarea id="cipher-input" rows="5" placeholder="Enter your text here..." oninput="processCipher()"></textarea>
+                        <span class="validation-error" id="text-error">Message cannot be empty.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Column -->
+            <div class="cyber-card glass-panel" id="results-panel">
+                <div class="card-header">
+                    <i class="fa-solid fa-chart-simple header-icon"></i>
+                    <h2>REAL-TIME OUTPUT</h2>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Text Output -->
+                    <div class="form-group">
+                        <label for="cipher-output" id="output-label">Ciphertext / Encrypted Result</label>
+                        <div class="textarea-wrapper">
+                            <textarea id="cipher-output" rows="5" readonly placeholder="Result will appear here..."></textarea>
+                            <button class="copy-btn" id="btn-copy" onclick="copyResult()" title="Copy to Clipboard">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Key Alignment Display -->
+                    <div class="form-group">
+                        <label>Key Alignment Visualization</label>
+                        <div class="alignment-container" id="key-alignment-visual">
+                            <span class="empty-placeholder">Aligns keyword with your message text characters...</span>
+                        </div>
+                    </div>
+
+                    <!-- Metrics/Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-title">Characters</span>
+                            <span class="stat-val" id="stat-chars">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-title">Shifts Applied</span>
+                            <span class="stat-val" id="stat-shifts">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-title">Casing Preserved</span>
+                            <span class="stat-val">Yes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Step-by-Step Breakdown -->
+        <section class="educational-section cyber-card glass-panel">
+            <div class="card-header">
+                <i class="fa-solid fa-graduation-cap header-icon"></i>
+                <h2>STEP-BY-STEP SHIFT MATHEMATICS</h2>
+                <div class="toggle-wrapper">
+                    <span class="toggle-text">Show Math Details</span>
+                    <label class="switch">
+                        <input type="checkbox" id="math-toggle" onchange="renderEducationalMath()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="section-desc">
+                    Vigenère encryption is composed of repeating Caesar shifts. Each step aligns a plaintext letter with a key letter and performs modular addition. Turn on <strong>Math Details</strong> to see the 0-25 character positions.
+                </p>
+                <div class="math-steps-grid" id="math-steps-container">
+                    <div class="empty-math-placeholder">
+                        <i class="fa-solid fa-circle-info"></i> Enter a message and keyword above to visualize the step-by-step Vigenère cipher mathematics.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Theoretical Guide Cards -->
+        <section class="info-section">
+            <h2 class="section-title">UNDERSTANDING THE CRYPTOGRAPHY</h2>
+            <div class="info-cards-grid">
+                <!-- Card 1 -->
+                <div class="info-card glass-panel">
+                    <div class="info-card-header">
+                        <i class="fa-solid fa-calculator card-icon"></i>
+                        <h3>The Modular Mathematics</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <p>Letters (A-Z) are mapped to numeric values from 0 to 25. The core algorithm executes mathematical offsets using Modular Arithmetic:</p>
+                        <div class="formula-block">
+                            <span class="formula-label">Encryption:</span>
+                            <code>C<sub>i</sub> = (P<sub>i</sub> + K<sub>i</sub>) mod 26</code>
+                            <span class="formula-label">Decryption:</span>
+                            <code>P<sub>i</sub> = (C<sub>i</sub> - K<sub>i</sub> + 26) mod 26</code>
+                        </div>
+                        <p>Where <code>P</code> is the plaintext, <code>K</code> is the key, and <code>C</code> is the ciphertext.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="info-card glass-panel">
+                    <div class="info-card-header">
+                        <i class="fa-solid fa-fingerprint card-icon"></i>
+                        <h3>Polyalphabetic Substitution</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <p>Unlike Caesar's cipher (monoalphabetic), the Vigenère cipher uses a keyword to alternate shifts. Because the key repeats, the same plaintext letter can result in different ciphertext letters.</p>
+                        <p>For example, with key <strong>"KEY"</strong>, the word <strong>"LLL"</strong> encrypts to <strong>"VJD"</strong>. This flattens letter frequency peaks, making basic frequency analysis attacks ineffective.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="info-card glass-panel">
+                    <div class="info-card-header">
+                        <i class="fa-solid fa-unlock-keyhole card-icon"></i>
+                        <h3>Historical Cryptanalysis</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <p>Once called <i>"le chiffre indéchiffrable"</i> (the indecipherable cipher), it was eventually broken by Friedrich Kasiski in 1863. Kasiski found that repeating text patterns reveal the <strong>keyword length</strong>.</p>
+                        <p>By finding factors of distances between repeating ciphertext sequences, attackers determine the key length and solve it as multiple interleaved Caesar ciphers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification for Clipboard Copy -->
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i> Copied to Clipboard!
+    </div>
+
+    <footer class="cyber-footer">
+        <div class="footer-container">
+            <p>&copy; 2026 DecodeLabs Cybersecurity Internship Portfolio | Task 2</p>
+            <p>Created by <span class="developer-name">Priyanka</span></p>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script src="script.js"></script>
+</body>
+</html>
