@@ -2,6 +2,38 @@
 
 This repository contains the cybersecurity internship projects and assignments completed by **Priyanka** during the DecodeLabs Cybersecurity Internship.
 
+
+---
+
+## 📁 Repository Structure
+
+```text
+DecodeLabs-Internship/
+├── Task-1-Priyanka/               # Task 1: Password Strength Checker
+│   ├── assets/                    # Task 1 preview screenshots
+│   ├── app.js                     # Web UI frontend logic
+│   ├── blacklist.txt              # Blacklisted passwords database
+│   ├── core.py                    # Strength evaluation engine
+│   ├── index.html                 # Web UI layout
+│   ├── main.py                    # CLI main controller
+│   ├── style.css                  # Web UI styles
+│   ├── tests.py                   # Testing suite
+│   ├── README.md                  # Task 1 documentation
+│   └── PROJECT_REPORT.md          # Technical analysis report
+│
+├── Task-2-Priyanka/               # Task 2: Advanced Vigenère Cipher
+│   ├── assets/                    # Task 2 preview screenshots (place screenshots here)
+│   ├── index.html                 # Interactive landing page
+│   ├── script.js                  # Frontend cipher logic & visualizer
+│   ├── style.css                  # Custom cyberpunk styles
+│   ├── vigenere.py                # Command-Line Python application
+│   └── README.md                  # Task 2 documentation & math guide
+│
+├── .gitignore                     # Git ignore rules
+├── LICENSE                        # Project License
+└── README.md                      # Root repository guide (This file)
+```
+
 ---
 
 ## 📂 Projects Portfolio

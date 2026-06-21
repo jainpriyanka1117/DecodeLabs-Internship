@@ -4,6 +4,21 @@ Welcome to the **Advanced Vigenère Cipher System**, a secure, console-based tex
 
 It demonstrates fundamental cryptographic practices, input validation, polyalphabetic substitution mathematics, and provides a step-by-step **Educational Mode** to inspect shift calculations.
 
+
+---
+
+## 📁 Project Structure
+
+```text
+Task-2-Priyanka/
+├── assets/             # Folder containing preview screenshots (web_preview.png, cli_preview.png)
+├── index.html          # Interactive Web UI Landing Page
+├── script.js           # Frontend interactive logic & dynamic visualizer
+├── style.css           # Custom dark theme and glassmorphism styling
+├── vigenere.py         # Modular Python CLI implementation
+└── README.md           # Project documentation, mathematical formulas & guide (This file)
+```
+
 ---
 
 ## 🖼️ Project Previews
