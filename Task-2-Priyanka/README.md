@@ -6,6 +6,16 @@ It demonstrates fundamental cryptographic practices, input validation, polyalpha
 
 ---
 
+## 🖼️ Project Previews
+
+### Web Landing Page Interface
+![Web Landing Page Preview](assets/web_preview.png)
+
+### CLI Console Application
+![CLI Console Preview](assets/cli_preview.png)
+
+---
+
 ## 📖 Cryptographic Concepts
 
 ### 1. What is Encryption?
