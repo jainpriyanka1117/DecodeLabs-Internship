@@ -29,6 +29,12 @@ DecodeLabs-Internship/
 │   ├── vigenere.py                # Command-Line Python application
 │   └── README.md                  # Task 2 documentation & math guide
 │
+├── Task-3-Priyanka/               # Task 3: Phishing Awareness Analysis (Phish Triage)
+│   ├── assets/                    # Task 3 preview screenshots (place screenshots here)
+│   ├── index.html                 # Interactive SOC-analyst triage simulator
+│   ├── Phishing_Awareness_Analysis_Report.docx  # Methodology write-up & case studies
+│   └── README.md                  # Task 3 documentation
+│
 ├── .gitignore                     # Git ignore rules
 ├── LICENSE                        # Project License
 └── README.md                      # Root repository guide (This file)
@@ -60,6 +66,16 @@ An advanced polyalphabetic substitution cipher application that allows users to 
 
 ---
 
+### 3. 🎣 [Task 3: Phishing Awareness Analysis](./Task-3-Priyanka)
+An interactive SOC-analyst triage simulator ("Phish Triage") that teaches phishing detection through a weighted red-flag checklist and a formal decision-tree verdict system (Safe/Close → Suspicious/Warn → Malicious/Block). Covers 13 realistic phishing, BEC, and safe scenarios, including India-specific cases (UPI, IRCTC, PAN/Aadhaar, WhatsApp job scams) alongside global ones (BEC wire fraud, fake SaaS billing, deepfake calls).
+
+*   **Interfaces**: Single-file interactive Web UI (HTML/CSS/JS, no backend) & accompanying Word report with full methodology and worked case studies.
+*   **Concepts Demonstrated**: Red-flag taxonomy & weighted scoring, decision-tree triage logic, psychological-trigger analysis (Authority, Urgency, Curiosity, Fear-Greed), URL/subdomain deobfuscation, and threat-analysis documentation.
+
+#### 🖥️ Task 3 Web UI Dashboard Preview
+![Phish Triage Preview](./Task-3-Priyanka/assets/web_preview.png)
+
+---
+
 ## 🛠️ Future Tasks (Coming Soon)
-*   **Task 3**: *Awaiting Release*
 *   **Task 4**: *Awaiting Release*
