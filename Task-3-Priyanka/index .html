@@ -1,0 +1,3312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phish Triage // Enterprise SOC Forensic Console</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-darker: #060913;
+      --bg-dark: #0c111e;
+      --bg-card: #151d30;
+      --bg-card-hover: #222d46;
+      
+      --border-color: #222d46;
+      --border-focus: #0ea5e9;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      
+      --color-red: #f43f5e;
+      --color-red-bg: rgba(244, 63, 94, 0.12);
+      --color-red-border: rgba(244, 63, 94, 0.3);
+      
+      --color-yellow: #eab308;
+      --color-yellow-bg: rgba(234, 179, 8, 0.12);
+      --color-yellow-border: rgba(234, 179, 8, 0.3);
+      
+      --color-green: #10b981;
+      --color-green-bg: rgba(16, 185, 129, 0.12);
+      --color-green-border: rgba(16, 185, 129, 0.3);
+      
+      --color-cyan: #06b6d4;
+      --color-cyan-bg: rgba(6, 182, 212, 0.1);
+      --color-cyan-border: rgba(6, 182, 212, 0.3);
+      
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      
+      --transition-speed: 0.2s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-darker);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-darker);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    /* Main Flex Layout */
+    .app-sidebar {
+      width: 260px;
+      background: var(--bg-dark);
+      border-right: 1.5px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 100;
+      transition: transform var(--transition-speed) ease;
+    }
+
+    .app-main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg-darker);
+    }
+
+    /* Mobile Header bar */
+    .mobile-header {
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 18px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Sidebar Components */
+    .sidebar-brand {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      background: var(--color-cyan-bg);
+      color: var(--border-focus);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--border-focus);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-mono);
+    }
+
+    .brand-sub {
+      font-size: 0.65rem;
+      color: var(--color-cyan);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-menu {
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-grow: 1;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border: 1px solid transparent;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+    }
+
+    .menu-item.active {
+      background: var(--color-cyan-bg);
+      color: var(--border-focus);
+      border-color: rgba(14, 165, 233, 0.2);
+      font-weight: 600;
+    }
+
+    .sidebar-stats-card {
+      margin: 16px;
+      padding: 16px;
+      background: rgba(6, 9, 19, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    .stats-card-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-stat-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stat-val.highlight {
+      color: var(--color-cyan);
+    }
+
+    /* Main Panel Headers */
+    .view-header {
+      padding: 20px 24px;
+      background: var(--bg-dark);
+      border-bottom: 1.5px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .view-title-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-title {
+      font-size: 1.25rem;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
+
+    .view-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .view-body {
+      padding: 24px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Generic Card Component */
+    .soc-card {
+      background: var(--bg-dark);
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 14px 18px;
+      background: rgba(15, 23, 42, 0.4);
+      border-bottom: 1.5px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Alert Queue Table layout */
+    .alert-table-card {
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .alert-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .alert-table th {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      border-bottom: 1.5px solid var(--border-color);
+      font-weight: 600;
+    }
+
+    .alert-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .alert-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .alert-table tr:hover td {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .alert-row-id {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--border-focus);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    .status-badge.pending {
+      background: var(--color-yellow-bg);
+      color: var(--color-yellow);
+      border: 1px solid var(--color-yellow-border);
+    }
+
+    .status-badge.resolved {
+      background: var(--color-green-bg);
+      color: var(--color-green);
+      border: 1px solid var(--color-green-border);
+    }
+
+    .status-badge.failed {
+      background: var(--color-red-bg);
+      color: var(--color-red);
+      border: 1px solid var(--color-red-border);
+    }
+
+    .risk-badge {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .risk-badge.high {
+      background: var(--color-red-bg);
+      color: var(--color-red);
+      border: 1px solid var(--color-red-border);
+    }
+
+    .risk-badge.medium {
+      background: var(--color-yellow-bg);
+      color: var(--color-yellow);
+      border: 1px solid var(--color-yellow-border);
+    }
+
+    .risk-badge.low {
+      background: var(--color-green-bg);
+      color: var(--color-green);
+      border: 1px solid var(--color-green-border);
+    }
+
+    .btn-triage-action {
+      background: var(--color-cyan-bg);
+      color: var(--border-focus);
+      border: 1px solid var(--color-cyan-border);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      text-transform: uppercase;
+    }
+
+    .btn-triage-action:hover {
+      background: var(--border-focus);
+      color: var(--bg-darker);
+    }
+
+    /* Triage Workspace Grid Split */
+    .triage-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .triage-grid {
+        grid-template-columns: repeat(12, 1fr);
+      }
+      .triage-workspace-left {
+        grid-column: span 7;
+      }
+      .triage-workspace-right {
+        grid-column: span 5;
+      }
+    }
+
+    /* Email inbox mockup UI */
+    .inbox-viewer-body {
+      padding: 0;
+      background: #080b13;
+    }
+
+    .email-client {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 460px;
+    }
+
+    .email-headers {
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.4);
+      border-bottom: 1.5px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .header-line {
+      display: flex;
+      gap: 8px;
+    }
+
+    .header-name {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    .header-val {
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    .email-body-view {
+      padding: 20px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      overflow-y: auto;
+      max-height: 420px;
+    }
+
+    /* SMS Chat styling inside viewer */
+    .sms-container {
+      max-width: 450px;
+      margin: 20px auto;
+      border: 1.5px solid var(--border-color);
+      background: #0b0f19;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+    }
+
+    .sms-header-bar {
+      padding: 12px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sms-body-pane {
+      flex-grow: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .sms-bubble {
+      max-width: 85%;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      background: #1e293b;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+      border: 1px solid var(--border-color);
+    }
+
+    .sms-meta-info {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* Teams Video Mock */
+    .teams-mock-view {
+      max-width: 600px;
+      margin: 10px auto;
+      background: #1f1f2e;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+    }
+
+    .teams-top-status {
+      background: #2b2b3d;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .teams-avatar-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #3e3e5c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      border: 3.5px solid var(--color-red);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
+      margin-bottom: 12px;
+    }
+
+    .teams-control-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .teams-ctrl-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #475569;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .teams-ctrl-btn.hangup {
+      background: var(--color-red);
+    }
+
+    .teams-live-transcript {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 0.825rem;
+      line-height: 1.5;
+      text-align: left;
+      width: 90%;
+      max-height: 110px;
+      overflow-y: auto;
+    }
+
+    /* Red Flags Highlight System */
+    .flag-highlight {
+      position: relative;
+      background: transparent;
+      border-bottom: 2px dashed transparent;
+      padding: 1px 2px;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .submitted .flag-highlight.active-flag {
+      border-bottom-color: var(--color-red);
+      background: var(--color-red-bg);
+      border-radius: 2px;
+    }
+
+    .submitted .flag-highlight.active-flag::after {
+      content: attr(data-number);
+      position: absolute;
+      top: -12px;
+      right: -8px;
+      background: var(--color-red);
+      color: #fff;
+      font-size: 9px;
+      font-family: var(--font-mono);
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 0 6px var(--color-red);
+      z-index: 10;
+    }
+
+    .submitted .flag-highlight:hover {
+      background: rgba(244, 63, 94, 0.2);
+    }
+
+    /* Checklist & Verdict Styling */
+    .checklist-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1.5px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .checklist-scroll-container {
+      max-height: 340px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 6px;
+    }
+
+    .flag-item-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.3);
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--transition-speed);
+    }
+
+    .flag-item-box:hover {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: var(--text-muted);
+    }
+
+    .flag-item-box.selected {
+      border-color: var(--border-focus);
+      background: rgba(14, 165, 233, 0.05);
+    }
+
+    .flag-chk {
+      margin-top: 3px;
+      accent-color: var(--border-focus);
+      cursor: pointer;
+    }
+
+    .flag-item-text {
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      flex-grow: 1;
+    }
+
+    .flag-pts-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .flag-item-box.selected .flag-pts-tag {
+      color: var(--border-focus);
+      border-color: rgba(14, 165, 233, 0.3);
+    }
+
+    /* Decision Tree Verdict layout */
+    .verdict-header-row {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    .verdict-row-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .verdict-btn {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all var(--transition-speed);
+    }
+
+    .verdict-btn:hover {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+    }
+
+    .verdict-btn.selected[data-verdict="safe"] {
+      border-color: var(--color-green);
+      background: var(--color-green-bg);
+      color: var(--color-green);
+    }
+
+    .verdict-btn.selected[data-verdict="suspicious"] {
+      border-color: var(--color-yellow);
+      background: var(--color-yellow-bg);
+      color: var(--color-yellow);
+    }
+
+    .verdict-btn.selected[data-verdict="malicious"] {
+      border-color: var(--color-red);
+      background: var(--color-red-bg);
+      color: var(--color-red);
+    }
+
+    .verdict-subtext {
+      font-size: 0.6rem;
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
+    /* Buttons Actions */
+    .triage-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-action-primary {
+      flex-grow: 1;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all var(--transition-speed);
+    }
+
+    .btn-action-primary.submit {
+      background: var(--border-focus);
+      border: 1.5px solid var(--border-focus);
+      color: var(--bg-darker);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-action-primary.submit:hover:not(:disabled) {
+      background: #38bdf8;
+      box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+    }
+
+    .btn-action-primary.submit:disabled {
+      background: var(--border-color);
+      border-color: var(--border-color);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-action-primary.autoscan {
+      background: var(--bg-card);
+      border: 1.5px solid var(--color-cyan-border);
+      color: var(--color-cyan);
+    }
+
+    .btn-action-primary.autoscan:hover:not(:disabled) {
+      background: var(--color-cyan-bg);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+    }
+
+    .btn-action-primary.autoscan:disabled {
+      border-color: var(--border-color);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .btn-action-primary.next {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-action-primary.next:hover {
+      background: var(--bg-card-hover);
+    }
+
+    /* Forensic Diagnostic Console Terminal */
+    .terminal-console {
+      background: #02040a;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.725rem;
+      line-height: 1.45;
+      color: #38bdf8;
+      height: 160px;
+      overflow-y: auto;
+      margin-top: 16px;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+      display: none;
+    }
+
+    .terminal-row {
+      margin-bottom: 2px;
+    }
+
+    .terminal-row.warning {
+      color: var(--color-yellow);
+    }
+
+    .terminal-row.danger {
+      color: var(--color-red);
+    }
+
+    .terminal-row.success {
+      color: var(--color-green);
+    }
+
+    /* Feedback Banner & Safety tips */
+    .feedback-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+      animation: fade-in 0.3s ease;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-verdict-banner {
+      padding: 14px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .feedback-verdict-banner.correct {
+      border-color: var(--color-green-border);
+      background: var(--color-green-bg);
+      color: var(--color-green);
+    }
+
+    .feedback-verdict-banner.incorrect {
+      border-color: var(--color-red-border);
+      background: var(--color-red-bg);
+      color: var(--color-red);
+    }
+
+    .feedback-verdict-banner.autoscan {
+      border-color: var(--color-cyan-border);
+      background: var(--color-cyan-bg);
+      color: var(--color-cyan);
+    }
+
+    .feedback-banner-title {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feedback-banner-desc {
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .trigger-details-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .trigger-details-grid {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    .trigger-details-grid .label {
+      color: var(--text-secondary);
+    }
+
+    .trigger-details-grid .val {
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .safety-remediation-card {
+      border: 1.5px solid var(--color-green-border);
+      background: var(--color-green-bg);
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .safety-remediation-title {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-green);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    .safety-tips-list {
+      padding-left: 18px;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* URL Decoder Panel Grid Layout */
+    .decoder-workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .decoder-workspace-grid {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+
+    .decoder-preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .decoder-preset-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .decoder-preset-btn {
+      text-align: left;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.725rem;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      word-break: break-all;
+    }
+
+    .decoder-preset-btn:hover {
+      border-color: var(--border-focus);
+      background: var(--bg-card);
+    }
+
+    .decoder-preset-btn.active {
+      border-color: var(--border-focus);
+      background: rgba(14, 165, 233, 0.05);
+      color: var(--border-focus);
+    }
+
+    .decoder-input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .decoder-text-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .decoder-text-input {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color var(--transition-speed);
+    }
+
+    .decoder-text-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    .decoder-results-panel {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .decoder-results-header {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+    }
+
+    .decoded-display-box {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      line-height: 1.8;
+      padding: 12px;
+      background: #060913;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .decoder-legend-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .decoder-legend-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.775rem;
+    }
+
+    .decoder-legend-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+
+    .decoder-legend-tag.subdomain {
+      background: var(--color-yellow-bg);
+      color: var(--color-yellow);
+      border: 1px dashed var(--color-yellow-border);
+    }
+
+    .decoder-legend-tag.root {
+      background: var(--color-cyan-bg);
+      color: var(--border-focus);
+      border: 1.5px solid var(--border-focus);
+    }
+
+    /* Custom Sandbox Screenshot upload */
+    .sandbox-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .sandbox-container {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+
+    .dropzone-card {
+      background: rgba(15, 23, 42, 0.2);
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+
+    .dropzone-card:hover {
+      border-color: var(--border-focus);
+      background: rgba(14, 165, 233, 0.02);
+    }
+
+    .sandbox-notes-input {
+      width: 100%;
+      height: 180px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      resize: none;
+      transition: border-color var(--transition-speed);
+    }
+
+    .sandbox-notes-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Playbook accordion and report styles */
+    .playbook-card {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .playbook-card:last-child {
+      border-bottom: none;
+    }
+
+    .playbook-header {
+      padding: 14px 18px;
+      background: rgba(15, 23, 42, 0.2);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .playbook-title {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--border-focus);
+    }
+
+    .playbook-body {
+      padding: 18px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Diagnostics Report statistics */
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .report-metric-box {
+      background: var(--bg-dark);
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-num {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .metric-num.highlight {
+      color: var(--color-cyan);
+    }
+
+    .chart-container {
+      border: 1.5px solid var(--border-color);
+      background: rgba(15, 23, 42, 0.25);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chart-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chart-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .chart-bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-darker);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      background: var(--color-cyan);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* Utility SVGs */
+    .icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      vertical-align: middle;
+    }
+
+    .btn-hamburger {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .app-sidebar {
+        position: fixed;
+        top: 55px;
+        left: 0;
+        height: calc(100vh - 55px);
+        transform: translateX(-100%);
+      }
+      .app-sidebar.show {
+        transform: translateX(0);
+      }
+      .mobile-header {
+        display: flex;
+      }
+      .btn-hamburger {
+        display: block;
+      }
+      .view-header {
+        padding: 16px;
+      }
+      .view-body {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Header Bar -->
+  <div class="mobile-header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="brand-icon" style="width: 32px; height: 32px;">
+        <svg class="icon" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <span style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: bold; text-transform: uppercase;">Phish Triage</span>
+    </div>
+    <button class="btn-hamburger" onclick="toggleSidebarDrawer()">
+      <svg class="icon" viewBox="0 0 24 24" style="width: 22px; height: 22px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Left Sidebar Navigation -->
+  <aside class="app-sidebar" id="sidebar-drawer">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg class="icon" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Phish Triage</span>
+        <span class="brand-sub">SOC FORENSICS LAB</span>
+      </div>
+    </div>
+
+    <!-- Navigation Options -->
+    <nav class="sidebar-menu">
+      <div class="menu-item active" id="menu-queue" onclick="switchTab('queue')">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Alert Queue
+      </div>
+      <div class="menu-item" id="menu-sandbox" onclick="switchTab('sandbox')">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Upload Sandbox
+      </div>
+      <div class="menu-item" id="menu-decoder" onclick="switchTab('decoder')">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Domain Decoder
+      </div>
+      <div class="menu-item" id="menu-playbook" onclick="switchTab('playbook')">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Forensic Playbook
+      </div>
+      <div class="menu-item" id="menu-report" onclick="switchTab('report')">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Diagnostics Log
+      </div>
+    </nav>
+
+    <!-- Running Stats Sidebar card -->
+    <div class="sidebar-stats-card">
+      <div class="stats-card-title">Session Performance</div>
+      <div class="sidebar-stat-row">
+        <span class="stat-label">Solved Alerts:</span>
+        <span class="stat-val" id="sb-solved-count">0 / 13</span>
+      </div>
+      <div class="sidebar-stat-row">
+        <span class="stat-label">Triage Accuracy:</span>
+        <span class="stat-val highlight" id="sb-accuracy-pct">0%</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right App Main Body Viewport -->
+  <main class="app-main">
+    
+    <!-- Tab 1: Alert Queue View -->
+    <section class="tab-content" id="tab-content-queue">
+      <div class="view-header">
+        <div class="view-title-wrapper">
+          <h2 class="view-title">Active Alert Triage Queue</h2>
+          <span class="view-subtitle">Select anomalous log entries to initiate deep forensic inspection and analysis</span>
+        </div>
+      </div>
+      
+      <div class="view-body">
+        <!-- Overview strip -->
+        <div class="report-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="report-metric-box">
+            <span class="view-subtitle" style="color: var(--text-muted);">PENDING ALERTS</span>
+            <span class="metric-num" id="metric-pending">13</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="view-subtitle" style="color: var(--text-muted);">RESOLVED ALERTS</span>
+            <span class="metric-num" id="metric-resolved">0</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="view-subtitle" style="color: var(--text-muted);">ACCURACY SCORE</span>
+            <span class="metric-num highlight" id="metric-accuracy">--</span>
+          </div>
+        </div>
+
+        <!-- Queue list card -->
+        <div class="soc-card alert-table-card">
+          <div class="card-header">
+            <span class="card-title">🚨 LIVE ALERTS QUEUE (INCOMING LOGS)</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="alert-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Alert Description / Source</th>
+                  <th>Incident Type</th>
+                  <th>Risk Tier</th>
+                  <th>Triage Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="alert-queue-table-body">
+                <!-- Dynamically filled with alert rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 1.5: Alert Triage Workspace (Loaded on clicking an alert) -->
+    <section class="tab-content" id="tab-content-triage" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrapper">
+          <h2 class="view-title" id="triage-title">Alert Investigation</h2>
+          <span class="view-subtitle">Inspect raw message headers, extract red flags, and submit target domain block instructions</span>
+        </div>
+        <button class="btn-reset-session" onclick="switchTab('queue')">
+          &larr; Back to Alert Queue
+        </button>
+      </div>
+
+      <div class="view-body">
+        <div class="triage-grid">
+          
+          <!-- Workspace Left: mock inbox/SMS client view -->
+          <div class="triage-workspace-left soc-card">
+            <div class="card-header">
+              <span class="card-title">🛡️ INTERACTIVE FORENSIC VIEWER</span>
+              <span class="card-badge alert-active" id="alert-type-badge">EMAIL_CLIENT</span>
+            </div>
+            <div class="inbox-viewer-body" id="client-body">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Workspace Right: checklist and verdict action -->
+          <div class="triage-workspace-right soc-card">
+            <div class="card-header">
+              <span class="card-title">🔍 ANALYST INVESTIGATION PANEL</span>
+              <span class="card-badge" id="risk-score-badge">0 pts checked</span>
+            </div>
+            <div class="card-body">
+              
+              <!-- Interactive Controls (Manual simulator) -->
+              <div id="triage-interactive-controls" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+                <div>
+                  <div class="checklist-title">Check Spotted Red Flags:</div>
+                  <div class="checklist-scroll-container" id="flags-checklist">
+                    <!-- Checkboxes rendered via JS -->
+                  </div>
+                </div>
+
+                <div class="verdict-header-row">Select Verdict Action:</div>
+                <div class="verdict-row-grid">
+                  <button class="verdict-btn" data-verdict="safe" onclick="selectVerdict('safe')">
+                    <span>Safe</span>
+                    <span class="verdict-subtext">Close Ticket</span>
+                  </button>
+                  <button class="verdict-btn" data-verdict="suspicious" onclick="selectVerdict('suspicious')">
+                    <span>Suspicious</span>
+                    <span class="verdict-subtext">Warn User</span>
+                  </button>
+                  <button class="verdict-btn" data-verdict="malicious" onclick="selectVerdict('malicious')">
+                    <span>Malicious</span>
+                    <span class="verdict-subtext">Block Domain</span>
+                  </button>
+                </div>
+
+                <div class="triage-actions">
+                  <button class="btn-action-primary submit" id="submit-triage-btn" onclick="submitTriage()" disabled>
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    Submit Triage
+                  </button>
+                  <button class="btn-action-primary autoscan" id="auto-analyze-btn" onclick="runAutoAnalysis()">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    Auto-Scan
+                  </button>
+                  <button class="btn-action-primary next" id="next-scenario-btn" onclick="nextScenario()" style="display: none;">
+                    Next Alert
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Custom Screenshot manual warning panel -->
+              <div id="triage-custom-upload-controls" style="display: none; flex-direction: column; gap: 16px; width: 100%;">
+                <div style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; color: var(--color-cyan); text-transform: uppercase;">
+                  [ CUSTOM DIAGNOSTIC ACTIVE ]
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; border: 1px dashed var(--border-color); padding: 14px; border-radius: 6px; background: rgba(0, 0, 0, 0.25);">
+                  Screenshot successfully loaded. Interactive checklist and scoring are suspended for custom files.
+                  <br><br>
+                  <strong>Investigation Guidelines:</strong>
+                  <ul style="padding-left: 16px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                    <li>Review the screenshot visually in the inbox client container.</li>
+                    <li>Look for typo-squatted senders, deadline threat markers, or credential requests.</li>
+                    <li>Extract URLs/hostnames and paste them in the <strong>Domain Decoder tool</strong> in the sidebar.</li>
+                  </ul>
+                </div>
+                <button class="btn-action-primary next" onclick="resetCustomUpload()" style="width: 100%;">
+                  Close Diagnostic View
+                </button>
+              </div>
+
+              <!-- Animated Console Log during Auto-Scan -->
+              <div class="terminal-console" id="terminal-box">
+                <div id="terminal-logs"></div>
+              </div>
+
+              <!-- Triage Feedback Panel -->
+              <div class="feedback-section" id="feedback-panel" style="display: none;">
+                <div class="feedback-verdict-banner" id="verdict-banner">
+                  <div class="feedback-banner-title" id="verdict-banner-title">TRIAGE STATUS</div>
+                  <div class="feedback-banner-desc" id="verdict-banner-desc">Diagnostic details.</div>
+                </div>
+
+                <div class="trigger-details-card">
+                  <div class="trigger-details-grid">
+                    <span class="label">Mapped Verdict:</span>
+                    <span class="val" id="correct-verdict-val">MALICIOUS</span>
+                  </div>
+                  <div class="trigger-details-grid">
+                    <span class="label">Psychological Trigger:</span>
+                    <span class="val"><span class="psychology-pill" id="trigger-pill">URGENCY</span></span>
+                  </div>
+                  <div style="line-height: 1.5; color: var(--text-secondary);" id="explanation-text">
+                    Explanation goes here.
+                  </div>
+                </div>
+
+                <!-- Personal Data Safety tips -->
+                <div class="safety-remediation-card" id="safety-panel">
+                  <div class="safety-remediation-title">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    🔒 PERSONAL DATA SAFETY PROTOCOL
+                  </div>
+                  <ul class="safety-tips-list" id="safety-list">
+                    <!-- Safety tips injected here -->
+                  </ul>
+                </div>
+
+                <!-- Hover detail annotations details -->
+                <div id="active-annotation-box" style="display: none;">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Custom Sandbox File Upload View -->
+    <section class="tab-content" id="tab-content-sandbox" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrapper">
+          <h2 class="view-title">Forensic Upload Sandbox</h2>
+          <span class="view-subtitle">Upload email screenshots or receipts to analyze details safely in local mock environment</span>
+        </div>
+      </div>
+
+      <div class="view-body">
+        <div class="sandbox-container">
+          
+          <div class="soc-card">
+            <div class="card-header">
+              <span class="card-title">📁 Diagnostic Sandbox Upload</span>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="dropzone-card" onclick="document.getElementById('sandbox-file-input').click()">
+                <svg class="icon" viewBox="0 0 24 24" style="width: 48px; height: 48px; color: var(--border-focus); stroke-width: 1.5;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <div style="font-weight: 600; font-size: 0.95rem;">Drag screenshot image here or click to browse</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Supports PNG, JPG, or JPEG images. Processing runs completely locally in browser.</div>
+                <input type="file" id="sandbox-file-input" accept="image/*" style="display: none;" onchange="handleSandboxUpload(event)">
+              </div>
+
+              <!-- Uploaded file display -->
+              <div id="sandbox-preview-container" style="display: none; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 16px; background: rgba(0, 0, 0, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+                  <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--color-green);" id="sb-filename">Screenshot.png</span>
+                  <button class="btn-triage-action" onclick="launchSandboxTriage()">Investigate File</button>
+                </div>
+                <div style="text-align: center; max-height: 250px; overflow: hidden; border-radius: 4px; border: 1px solid var(--border-color);">
+                  <img id="sb-img-preview" src="" alt="Preview" style="max-width: 100%; height: auto;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Notepad card -->
+          <div class="soc-card">
+            <div class="card-header">
+              <span class="card-title">📝 Forensic Investigation Notes</span>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 16px;">
+              <textarea class="sandbox-notes-input" id="sandbox-notes-box" placeholder="Write down threat analysis details, sender domain checks, or notes here..."></textarea>
+              <button class="btn-action-primary submit" onclick="downloadForensicNotes()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Forensic Report
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: URL Decoder View -->
+    <section class="tab-content" id="tab-content-decoder" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrapper">
+          <h2 class="view-title">Domain & URL Decoder</h2>
+          <span class="view-subtitle">Deconstruct subdomains right-to-left to spot the true owner and block typosquatting attempts</span>
+        </div>
+      </div>
+
+      <div class="view-body">
+        <div class="soc-card">
+          <div class="card-header">
+            <span class="card-title">🔗 Hostname Deconstructor Tool</span>
+          </div>
+          <div class="card-body">
+            <div class="decoder-workspace-grid">
+              
+              <div class="decoder-preset-list">
+                <div class="decoder-preset-title">Presets & Examples:</div>
+                <button class="decoder-preset-btn" onclick="loadUrlDecoderPreset('www.decodelabs.tech.login-update.com')">www.decodelabs.tech.login-update.com</button>
+                <button class="decoder-preset-btn" onclick="loadUrlDecoderPreset('irctc.co.in.refund-support.in')">irctc.co.in.refund-support.in</button>
+                <button class="decoder-preset-btn" onclick="loadUrlDecoderPreset('microsoft-security-auth-check.net/login')">microsoft-security-auth-check.net/login</button>
+                <button class="decoder-preset-btn" onclick="loadUrlDecoderPreset('g00gle.com')">g00gle.com (Homoglyph checker)</button>
+              </div>
+
+              <div>
+                <div class="decoder-input-container">
+                  <label class="decoder-text-label" for="dec-url-input">Input Suspicious URL:</label>
+                  <input type="text" class="decoder-text-input" id="dec-url-input" placeholder="e.g. www.officemanager.com.security-alert-verify.in/index.php" oninput="runUrlAnalysis(this.value)">
+                </div>
+
+                <div class="decoder-results-panel">
+                  <div class="decoder-results-header">Right-to-Left Parser View:</div>
+                  <div class="decoded-display-box" id="decoded-url-parts">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Input a URL or click a preset on the left to deconstruct...</span>
+                  </div>
+
+                  <div class="decoder-legend-row">
+                    <div class="decoder-legend-item">
+                      <span class="decoder-legend-tag root">TRUE ROOT DOMAIN</span>
+                      <span class="decoder-legend-text">Evaluated right-to-left. This represents the **actual corporation** that registered the domain.</span>
+                    </div>
+                    <div class="decoder-legend-item">
+                      <span class="decoder-legend-tag subdomain">SUBDOMAIN (WARNING)</span>
+                      <span class="decoder-legend-text">Can be customized completely by attackers to mimic legitimate brands (like <code>decodelabs.tech</code>) to fool you.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Playbook view -->
+    <section class="tab-content" id="tab-content-playbook" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrapper">
+          <h2 class="view-title">SOC Incident Response Playbook</h2>
+          <span class="view-subtitle">Standard corporate training manual for threat detection, checklist scoping, and psychological mitigation</span>
+        </div>
+      </div>
+
+      <div class="view-body">
+        <div class="soc-card" style="max-width: 900px; margin: 0 auto; width: 100%;">
+          
+          <div class="playbook-card">
+            <div class="playbook-header" onclick="togglePlaybookBlock(1)">
+              <span class="playbook-title">01 // THE P-V-R THREAT HANDLING METHODOLOGY</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="playbook-body" id="playbook-body-1">
+              <strong>1. PAUSE (Stop Before Action)</strong>: Attackers rely on high urgency, fear, or corporate authority to override rational checking. If an email claims you must act within hours (e.g. password expire, penalty fine) or keep details secret, PAUSE immediately.
+              <br><br>
+              <strong>2. VERIFY (Scrutinize Sender and Requests)</strong>: Inspect the actual email domain, not just the display name. Cross-check payment or security credentials requests using independent channels (phone directory, direct messaging, or walking to the office).
+              <br><br>
+              <strong>3. REPORT (Active Defense)</strong>: Never delete or ignore a phishing mail. Forward details to your security team so standard filters can block lookalike domains and warn other coworkers.
+            </div>
+          </div>
+
+          <div class="playbook-card">
+            <div class="playbook-header" onclick="togglePlaybookBlock(2)">
+              <span class="playbook-title">02 // SCOPING THE CHECKLIST RED FLAGS</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="playbook-body" id="playbook-body-2" style="display: none;">
+              Our simulator checklist isolates **11 major indicators** used to flag alerts. Scoping details:
+              <ul style="padding-left: 18px; margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+                <li><strong>Sender mismatch [4 pts]</strong>: Display name matches standard executive or brand but the email header domain is completely unrelated (e.g., <code>RK (CEO) &lt;ceo-alert@external-gateway.com&gt;</code>).</li>
+                <li><strong>Browser-in-the-browser (BitB) [4 pts]</strong>: Fake sign-in popups painted inside a compromised landing page. You cannot drag this window outside the main browser window frame.</li>
+                <li><strong>Dangerous attachment [5 pts]</strong>: Files ending in extensions designed to run malicious scripts (e.g., <code>.scr</code>, <code>.iso</code>, <code>.js</code>, <code>.exe</code>, or double extensions like <code>.pdf.scr</code>).</li>
+                <li><strong>Callback scam (TOAD) [3 pts]</strong>: Telephone-oriented attacks offering no links. The mail claims you have been charged and must call a support phone number to cancel, routing you to a voice scam.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="playbook-card">
+            <div class="playbook-header" onclick="togglePlaybookBlock(3)">
+              <span class="playbook-title">03 // PSYCHOLOGICAL TRIGGER MATRIX</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="playbook-body" id="playbook-body-3" style="display: none;">
+              Social engineering bypasses technological controls by exploiting human psychology:
+              <br><br>
+              - <strong>Authority</strong>: Impersonating IT departments, regulatory agencies, executives, or government officers to enforce compliance.
+              <br>
+              - <strong>Urgency</strong>: Setting short deadlines (e.g. 2 hours, 24 hours) to prevent you from taking time to consult with security teams or managers.
+              <br>
+              - <strong>Fear-Greed</strong>: Threatening account suspension, data loss, tax penalties, or promising unrealistic high financial gain (e.g. high WFH salaries or ticket refunds).
+              <br>
+              - <strong>Curiosity</strong>: Promising allowance increases, benefits reviews, or interesting surveys to entice link clicking.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Diagnostics Log (Report) View -->
+    <section class="tab-content" id="tab-content-report" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrapper">
+          <h2 class="view-title">Diagnostics Logs & Metrics</h2>
+          <span class="view-subtitle">Detailed evaluation of your simulation performance and security awareness compliance</span>
+        </div>
+      </div>
+
+      <div class="view-body">
+        <div class="report-grid">
+          <div class="report-metric-box">
+            <span class="view-subtitle" style="color: var(--text-muted);">ALERTS COMPLETED</span>
+            <span class="metric-num" id="diag-metric-solved">0 / 13</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="view-subtitle" style="color: var(--text-muted);">TRIAGE ACCURACY</span>
+            <span class="metric-num highlight" id="diag-metric-accuracy">0%</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="view-subtitle" style="color: var(--text-muted);">DEFENSE RATING</span>
+            <span class="metric-num" id="diag-metric-rating" style="color: var(--color-yellow);">TRAINEE</span>
+          </div>
+        </div>
+
+        <div class="soc-card" style="max-width: 700px;">
+          <div class="card-header">
+            <span class="card-title">📊 Threat Category Accuracy</span>
+          </div>
+          <div class="card-body" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="chart-bar-row">
+              <div class="chart-bar-labels">
+                <span>Executive Impersonation / BEC</span>
+                <span id="chart-val-bec">0%</span>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill" id="chart-bar-bec" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-bar-labels">
+                <span>Financial / Billing Suspensions</span>
+                <span id="chart-val-billing">0%</span>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill" id="chart-bar-billing" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-bar-labels">
+                <span>Credential Harvesting / IT Alerts</span>
+                <span id="chart-val-cred">0%</span>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill" id="chart-bar-cred" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="chart-bar-row">
+              <div class="chart-bar-labels">
+                <span>India-Specific Threat Vectors</span>
+                <span id="chart-val-india">0%</span>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill" id="chart-bar-india" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // System clock update
+    document.getElementById('sb-accuracy-pct').innerText = '0%';
+
+    // 11 Red Flags Data
+    const RED_FLAGS = [
+      { id: 0, text: "Sender-domain mismatch (display name vs actual address)", weight: 4 },
+      { id: 1, text: "Fake forwarded chains / odd headers or timestamps", weight: 2 },
+      { id: 2, text: "Browser-in-the-browser fake login popup", weight: 4 },
+      { id: 3, text: "Dangerous attachment extension (.iso, .scr, .js, etc.)", weight: 5 },
+      { id: 4, text: "Urgent bypass request ('don't tell anyone', 'skip rules')", weight: 3 },
+      { id: 5, text: "Request for sensitive info (OTP, password, UPI, payment)", weight: 4 },
+      { id: 6, text: "Alarmist fake sign-in/activity alert", weight: 3 },
+      { id: 7, text: "MFA fatigue (repeated unsolicited approval prompts)", weight: 3 },
+      { id: 8, text: "Security callback scam (phone number only, no link)", weight: 3 },
+      { id: 9, text: "Unsolicited QR code", weight: 3 },
+      { id: 10, text: "Deepfake voice/video impersonation in a live call", weight: 4 }
+    ];
+
+    // Scenarios Database
+    const SCENARIOS = [
+      {
+        id: 1,
+        title: "BEC 'Lost Wallet' CEO SMS",
+        alertType: "BEC_SMS_LOG",
+        trigger: "Authority / Urgency",
+        categoryType: "bec",
+        correctFlags: [0, 4, 5],
+        correctVerdict: "malicious",
+        explanation: "This scenario impersonates high-ranking leadership (the CEO) requesting a bypass of financial procedures via SMS due to an 'urgent emergency'. The authority of the CEO is paired with intense urgency to prevent the victim from double-checking.",
+        safetyTips: [
+          "Verify financial instructions directly via a verified secondary voice/in-person channel.",
+          "Do not execute payments or bypass authorization processes based on SMS or chat requests.",
+          "Report the sender number or spoofed SMS gateway to your internal security operations center."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on SMS Log...",
+          "Analyzing sender metadata & routing logs...",
+          "WARNING: Gateway route address 'rk.exec-alert@sms-gateway-service.in' is external.",
+          "WARNING: Display Name matches CEO 'Rajesh Kumar' but origin domain mismatch detected.",
+          "Parsing message body for social engineering vectors...",
+          "ALERT: High-urgency financial transaction request identified.",
+          "ALERT: Request to bypass validation call ('Do not call me') identified.",
+          "Score calculated: 11 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "Rajesh Kumar (CEO) <rk.exec-alert@sms-gateway-service.in>",
+          to: "Priyanka Sharma (Finance)",
+          date: "Jul 1, 2026, 14:02 PM",
+          subject: "SMS Gateway Alert // Alert ID #92018"
+        },
+        body: `
+          <div class="sms-client">
+            <div class="sms-header">
+              <div class="sms-avatar">RK</div>
+              <div>Rajesh Kumar (CEO)</div>
+              <div style="font-size: 0.65rem;">+91 98123-XXXXX &bull; Via SMS Relay</div>
+            </div>
+            <div class="sms-bubble sms-incoming">
+              Priyanka, I'm in a vendor meeting right now and my wallet is missing. I need you to <span class="flag-highlight" data-flag-id="5" data-number="1" data-explanation="Request for financial transaction/wire transfer of company funds.">initiate a wire transfer of ₹45,000 to this vendor immediately</span>. 
+              <br><br>
+              <span class="flag-highlight" data-flag-id="4" data-number="2" data-explanation="Demands bypassing validation calls and requests keeping the request secret/quiet.">Do not call me as I'm speaking, just message back when done.</span> I will sign off when back in office.
+              <div class="sms-time">14:02 PM</div>
+            </div>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+            SENDER HEADERS: <span class="flag-highlight" data-flag-id="0" data-number="3" data-explanation="SMS received via gateway domain 'sms-gateway-service.in' which is unrelated to decodelabs.tech.">Gateway route: rk.exec-alert@sms-gateway-service.in</span>
+          </div>
+        `
+      },
+      {
+        id: 2,
+        title: "Fake SaaS billing suspended notice",
+        alertType: "EMAIL_INBOX",
+        trigger: "Fear-Greed",
+        categoryType: "billing",
+        correctFlags: [0, 5, 6],
+        correctVerdict: "malicious",
+        explanation: "Impersonates Notion billing department using scare tactics (workspace deletion, data loss) to force the user to input payment card details on a harvesting domain.",
+        safetyTips: [
+          "Never click on payment or account update links embedded in emails.",
+          "Access billing details directly by logging into the official portal (e.g. notion.so) via your browser bookmark.",
+          "If credit card details were submitted, freeze your card instantly and monitor statements."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Email Alert...",
+          "Checking SPF/DKIM authentication records...",
+          "WARNING: Sender domain 'notion-management-portal.com' does not match official brand.",
+          "Evaluating body text layout and button link targets...",
+          "ALERT: Account suspension scare language detected ('prevent permanent data loss').",
+          "ALERT: Payment input link redirects to external credential harvester.",
+          "Score calculated: 11 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "Notion Billing <billing@notion-management-portal.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 09:12 AM",
+          subject: "[Urgent Action Required] Your Notion Plus Subscription Has Been Suspended"
+        },
+        body: `
+          <p>Dear Customer,</p>
+          <br>
+          <p>We were unable to process your monthly subscription payment of $10.00. <span class="flag-highlight" data-flag-id="6" data-number="1" data-explanation="Scare tactics warning of data loss and workspace deletion to induce panic.">To prevent permanent data loss and deletion of your workspaces</span>, please update your billing details within 24 hours.</p>
+          <br>
+          <p style="text-align: center;">
+            <a href="#" onclick="return false;" class="flag-highlight" data-flag-id="5" data-number="2" data-explanation="Credential/payment harvesting button directing to notion-management-portal.com.">[ Update Billing Info ]</a>
+          </p>
+          <br>
+          <p>Thank you,<br>Notion Account Services</p>
+        `,
+        attachment: null
+      },
+      {
+        id: 3,
+        title: "Fake IT Password Expiry Alert",
+        alertType: "EMAIL_INBOX",
+        trigger: "Authority",
+        categoryType: "cred",
+        correctFlags: [0, 2, 5, 6],
+        correctVerdict: "malicious",
+        explanation: "Impersonates IT admin claiming immediate account suspension to force credential input. When the target clicks, a fake Browser-in-the-Browser SSO popup harvests credentials.",
+        safetyTips: [
+          "Legitimate IT departments never request password changes or validation via unsolicited external links.",
+          "Inspect the domain structure carefully to identify lookalike helpdesk services.",
+          "If you entered credentials, report the compromise and change your Active Directory password immediately."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on IT Ticket...",
+          "Analyzing sender routing headers...",
+          "WARNING: Origin email domain 'company-it-services-security.net' is lookalike typosquatting.",
+          "Scanning body links for phishing templates...",
+          "ALERT: Warning notice uses urgency lockout threats ('expire in 8 hours').",
+          "WARNING: Target page renders fake SSO popup frame with non-draggable browser header (BitB).",
+          "Score calculated: 15 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "IT Helpdesk Admin <admin-login@company-it-services-security.net>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 11:24 AM",
+          subject: "MANDATORY: Active Directory Password Expiry - Action Required Today"
+        },
+        body: `
+          <p>Our records show your corporate Active Directory password will expire in 8 hours. <span class="flag-highlight" data-flag-id="6" data-number="1" data-explanation="Artificial urgency claiming account lockout within hours.">Failure to update will result in lockout from email, Slack, and VPN.</span></p>
+          <br>
+          <p>Click below to keep your current password:</p>
+          <br>
+          <p style="text-align: center;">
+            <a href="#" onclick="return false;" class="flag-highlight" data-flag-id="5" data-number="2" data-explanation="Button links to external domain harvesting credentials.">[ Keep My Password ]</a>
+          </p>
+          <br>
+          <div style="border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-top: 14px; background: rgba(0, 0, 0, 0.2);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-family: var(--font-mono);">LANDING PAGE LOGS (PREVIEW):</div>
+            <p>Clicking the link renders a Microsoft SSO window. However, inspecting the window frame reveals the address bar cannot be dragged outside the browser tab. This is a <span class="flag-highlight" data-flag-id="2" data-number="3" data-explanation="Browser-in-the-browser attack where a mock login window is painted directly inside a page to steal corporate SSO credentials.">Browser-in-the-browser (BitB) fake login popup</span>.</p>
+          </div>
+        `
+      },
+      {
+        id: 4,
+        title: "HR benefits review notice",
+        alertType: "EMAIL_INBOX",
+        trigger: "Curiosity / Fear-Greed",
+        categoryType: "cred",
+        correctFlags: [0, 3, 5],
+        correctVerdict: "malicious",
+        explanation: "Uses corporate HR branding to entice employees into clicking a benefits update link and opening a double-extension, executable script file.",
+        safetyTips: [
+          "Exercise caution with emails demanding urgent questionnaire completion to avoid 'default enrollment penalties'.",
+          "Do not run email attachments containing executable code extensions like `.scr`, `.exe`, or `.js`.",
+          "Contact your HR representative via phone or internal chat to confirm benefit renewals."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on HR Email Log...",
+          "Checking sender domain signatures...",
+          "WARNING: Address domain 'hr-survey-feedback.com' is not verified in internal DNS.",
+          "Inspecting email attachments...",
+          "ALERT: Found dangerous double extension attachment (.pdf.scr). File is an executable script.",
+          "Score calculated: 13 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "HR Benefits Department <benefits@hr-survey-feedback.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 08:30 AM",
+          subject: "IMPORTANT: Q3 Employee Health Benefits Renewal Forms"
+        },
+        body: `
+          <p>Hi team,</p>
+          <br>
+          <p>All employees are required to review the attached benefit plans document and complete the verification form by Friday. <span class="flag-highlight" data-flag-id="5" data-number="1" data-explanation="Coerces the user to fill out personal details and update details.">Missing this deadline will result in default plan enrollment and loss of wellness allowances.</span></p>
+          <br>
+          <p>Please double-click the attached archive to access the dynamic forms utility.</p>
+        `,
+        attachment: {
+          name: "benefits_renewal_form.pdf.scr",
+          size: "421 KB",
+          isDangerous: true,
+          explanation: "Dangerous double extension (.pdf.scr). The file masquerades as a PDF document but is actually a Windows screen saver executable script designed to inject malware."
+        }
+      },
+      {
+        id: 5,
+        title: "Genuine coworker status update",
+        alertType: "EMAIL_INBOX",
+        trigger: "None (Neutral)",
+        categoryType: "bec",
+        correctFlags: [],
+        correctVerdict: "safe",
+        explanation: "This is a legitimate internal email. There are no mismatched domains, no suspicious urgency, no suspicious attachments, and no requests for sensitive verification data.",
+        safetyTips: [
+          "This email originates from a verified internal domain and has normal, low-urgency wording.",
+          "Always maintain security hygiene by reporting any email if a coworker unexpectedly sends uncharacteristic links or files."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Coworker Communication...",
+          "Checking sender SPF/DKIM verification...",
+          "SUCCESS: Domain matches decodelabs.tech with valid DKIM signatures.",
+          "Scanning email text for coercion vectors...",
+          "Heuristic checks: Neutral tone, no urgent action items, no credential harvesting prompts.",
+          "Score calculated: 0 points (Safe).",
+          "Triage closed as safe."
+        ],
+        meta: {
+          from: "Amit Sharma <amit.sharma@decodelabs.tech>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 10:15 AM",
+          subject: "Project Status Review - Q3 Deliverables"
+        },
+        body: `
+          <p>Hi Priyanka,</p>
+          <br>
+          <p>Hope you're doing well. Just wanted to share the draft timeline for our client review next week. No rush, please take a look when you have a moment and let me know if the dates look reasonable to you.</p>
+          <br>
+          <p>Best regards,<br>Amit Sharma<br>Lead Designer | DecodeLabs</p>
+        `,
+        attachment: null
+      },
+      {
+        id: 6,
+        title: "TOAD Subscription Callback Invoice",
+        alertType: "EMAIL_INBOX",
+        trigger: "Fear-Greed",
+        categoryType: "billing",
+        correctFlags: [0, 4, 8],
+        correctVerdict: "malicious",
+        explanation: "A classic Telephone-Oriented Attack Delivery (TOAD). The email bypasses automated URL filters by containing no links. Instead, it prompts victims to call a fake customer support center to disputing a large charge, leading to voice social engineering.",
+        safetyTips: [
+          "Do not call toll-free numbers listed in unsolicited renewal invoices to cancel subscriptions.",
+          "Check your credit card accounts online to verify if any unauthorized transaction actually occurred.",
+          "Report TOAD callback phish emails to security teams to block the support phone number."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Billing Invoice Log...",
+          "Scanning body links...",
+          "INFO: No URLs or HTML links detected in email. Standard gateway scanning bypassed.",
+          "Running OCR/Text parser checks on digits...",
+          "ALERT: Security callback phone scam support line identified (+1 888-XXX-XXXX).",
+          "WARNING: Sender domain 'billing-alert-info.com' does not match Geek Squad brand.",
+          "Score calculated: 10 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "Geek Squad Renewal Team <invoice-service-alert@billing-alert-info.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 12:44 PM",
+          subject: "Invoice #GS-992819 - Thank you for your purchase"
+        },
+        body: `
+          <p>Your personal subscription for Geek Squad Total Security has been renewed for $499.99. This charge will appear on your bank statement in 24-48 hours.</p>
+          <br>
+          <p><span class="flag-highlight" data-flag-id="4" data-number="1" data-explanation="Forcing a decision by claiming billing is already processed and locking refund windows.">If you did not authorize this transaction, please call our Support Billing Desk immediately</span> at <strong>+1 (888) 412-0921</strong> to cancel and request a refund.</p>
+          <br>
+          <p>Note: <span class="flag-highlight" data-flag-id="8" data-number="2" data-explanation="Callback phishing scam: instructs user to call a phone number for cancellation rather than using the standard online account dashboard.">Cancellations and refunds are ONLY accepted via our phone support desk.</span></p>
+        `
+      },
+      {
+        id: 7,
+        title: "Quishing Portal MFA Recovery",
+        alertType: "EMAIL_INBOX",
+        trigger: "Curiosity / Fear-Greed",
+        categoryType: "cred",
+        correctFlags: [0, 6, 9],
+        correctVerdict: "malicious",
+        explanation: "This email instructs the user to scan a QR code (Quishing) on their mobile phone under the guise of an urgent MFA reset. This shifts the attack to a personal device which lacks corporate firewalls.",
+        safetyTips: [
+          "Avoid scanning QR codes in emails on your personal smartphone camera.",
+          "Smartphone browsers often bypass desktop web firewalls and endpoint detection tools.",
+          "Verify authentication configuration requirements directly inside your organization's intranet dashboard."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on MFA Alert Log...",
+          "WARNING: Address domain 'security-verification-portal.com' is lookalike typosquatting.",
+          "Analyzing image layouts...",
+          "ALERT: Unsolicited QR Code (Quishing) block identified.",
+          "OCR Check: QR code payload redirects to suspicious login form off network.",
+          "Score calculated: 10 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "Security Operations Team <mfa-setup@security-verification-portal.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 15:10 PM",
+          subject: "CRITICAL: Mandatory Multi-Factor Authentication (MFA) Re-registration"
+        },
+        body: `
+          <p>Dear Employee,</p>
+          <br>
+          <p>Due to recent security updates, all employee accounts must update their authentication profile. Scan the QR code below using your mobile device camera to sync your MFA token. <span class="flag-highlight" data-flag-id="6" data-number="1" data-explanation="Scare warnings of account lockout to induce panic.">Failure to sync within 12 hours will lock your corporate account.</span></p>
+        `,
+        qrCode: "MFA Setup Verification Portal - Scan to Sync Token"
+      },
+      {
+        id: 8,
+        title: "UPI Block Alert (India Specific)",
+        alertType: "BEC_SMS_LOG",
+        trigger: "Fear-Greed",
+        categoryType: "india",
+        correctFlags: [0, 5, 6],
+        correctVerdict: "malicious",
+        explanation: "Impersonates bank notifications warning of UPI suspension. It utilizes PAN/Aadhaar compliance rules to collect sensitive financial data.",
+        safetyTips: [
+          "NPCI and payment operators never suspend UPI access or request KYC via SMS link updates.",
+          "Never enter Aadhaar, PAN, or UPI PIN on unverified web links.",
+          "Contact your bank or GPay/PhonePe support directly through their official in-app help system."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Mobile SMS Gateway Log...",
+          "Verifying sender ID details...",
+          "WARNING: Sending domain 'pay-block-notification-resolve.in' is not standard NPCI registry.",
+          "Parsing text blocks...",
+          "ALERT: Scare warnings targeting immediate payment blockage.",
+          "ALERT: KYC verification harvest link targeting personal identifiers.",
+          "Score calculated: 11 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "NPCI Alert Desk <alerts@pay-block-notification-resolve.in>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 09:44 AM",
+          subject: "SMS Alerts // NPCI compliance log #UPI-992A"
+        },
+        body: `
+          <div class="sms-client">
+            <div class="sms-header">
+              <div class="sms-avatar">BH</div>
+              <div><span class="flag-highlight" data-flag-id="0" data-number="3" data-explanation="Sender-domain mismatch: The message display name 'BHIM-UPI Alert' masks the actual gateway sending address alerts@pay-block-notification-resolve.in.">BHIM-UPI Alert</span></div>
+              <div style="font-size: 0.65rem;">Compliance Desk</div>
+            </div>
+            <div class="sms-bubble sms-incoming">
+              ALERT: <span class="flag-highlight" data-flag-id="6" data-number="1" data-explanation="Threat of UPI transaction blockage to induce panic.">Your UPI identity (GPay/PhonePe) will be BLOCKED within 24 Hours.</span>
+              <br><br>
+              To avoid block, verify your KYC immediately with PAN and Aadhaar: 
+              <br>
+              <a href="#" onclick="return false;" class="flag-highlight" data-flag-id="5" data-number="2" data-explanation="Harvesting link targeting Aadhaar/PAN details.">http://pay-block-notification-resolve.in/kyc-update</a>
+              <div class="sms-time">09:44 AM</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 9,
+        title: "IRCTC Train ticket refund portal",
+        alertType: "EMAIL_INBOX",
+        trigger: "Curiosity / Fear-Greed",
+        categoryType: "india",
+        correctFlags: [0, 1, 5],
+        correctVerdict: "malicious",
+        explanation: "Mimics IRCTC train ticket updates using a nested subdomain structure. When clicked, it asks for wallet details to claim a fake refund.",
+        safetyTips: [
+          "IRCTC processed ticket refunds are credited automatically back to your payment mode without links.",
+          "Verify cancellation status and refunds by logging into the official irctc.co.in site directly.",
+          "Do not share wallet logins, UPI PINs, or card details to claim a refund."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on IRCTC Alert Log...",
+          "Checking URL Domain hierarchy right-to-left...",
+          "WARNING: Domain uses nested subdomains to mask destination. Primary is 'refund-support.in'.",
+          "ALERT: Financial wallet credentials query link found.",
+          "Score calculated: 10 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "IRCTC Refund Desk <refund-status@irctc-ticket-update.co.in.refund-support.in>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 14:15 PM",
+          subject: "REFUND SUCCESSFUL: Refund of ₹1,850 credited to your wallet - Verify Details"
+        },
+        body: `
+          <p>Dear Passenger,</p>
+          <br>
+          <p>Your ticket refund of ₹1,850 for train PNR 4829104829 has been processed. To <span class="flag-highlight" data-flag-id="5" data-number="1" data-explanation="Financial/wallet harvesting prompt to collect banking credentials.">claim your refund instantly to your bank account or PayTM wallet</span>, please click below to complete verification.</p>
+          <br>
+          <p style="text-align: center;">
+            <a href="#" onclick="return false;" class="flag-highlight" data-flag-id="1" data-number="2" data-explanation="Fake subdomain structure: irctc.co.in is a subdomain, but the real root is refund-support.in">[ Claim Refund Instantly ]</a>
+          </p>
+        `
+      },
+      {
+        id: 10,
+        title: "Income Tax Aadhaar-PAN deficit warning",
+        alertType: "EMAIL_INBOX",
+        trigger: "Authority",
+        categoryType: "india",
+        correctFlags: [0, 5, 6],
+        correctVerdict: "malicious",
+        explanation: "Quotes Indian tax laws (Section 234H) and claims a heavy penalty to frighten the user into sharing PAN/Aadhaar credentials on a lookup site.",
+        safetyTips: [
+          "The Income Tax Department communicates official notices via speed post or the e-filing portal.",
+          "Never input Aadhaar or PAN details on external links sent via emails claiming tax defaults.",
+          "Check Aadhaar-PAN status directly on the official Government site: incometax.gov.in."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Gov Notice log...",
+          "Checking sender authenticity...",
+          "WARNING: Sender domain 'incometax-filing-gov.in.security-verification.net' is external registry.",
+          "Analyzing text for authority abuse triggers...",
+          "ALERT: Fake regulatory tax penalty warning ($10,000 fine) detected.",
+          "ALERT: Link directs to lookalike KYC validation harvest page.",
+          "Score calculated: 11 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "Income Tax e-Filing Portal <no-reply@incometax-filing-gov.in.security-verification.net>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 10:04 AM",
+          subject: "IMMEDIATE NOTICE: Aadhaar-PAN Linking Deficit - Penalty Imposed"
+        },
+        body: `
+          <p>As per Section 234H of the Income Tax Act, your PAN card is declared inoperative due to failure to link Aadhaar. <span class="flag-highlight" data-flag-id="6" data-number="1" data-explanation="Alarmist fake penalty claims to frighten the target.">A penalty of ₹10,000 has been auto-logged.</span></p>
+          <br>
+          <p>Click below to verify Aadhaar link status and appeal penalty: </p>
+          <br>
+          <p style="text-align: center;">
+            <a href="#" onclick="return false;" class="flag-highlight" data-flag-id="5" data-number="2" data-explanation="Redirects user to collect Aadhaar and PAN data.">[ Resolve PAN-Aadhaar Link ]</a>
+          </p>
+        `
+      },
+      {
+        id: 11,
+        title: "WhatsApp Job Recruiter Priya",
+        alertType: "BEC_SMS_LOG",
+        trigger: "Fear-Greed",
+        categoryType: "india",
+        correctFlags: [0, 5, 8],
+        correctVerdict: "malicious",
+        explanation: "Promises unrealistically high work-from-home compensation via WhatsApp. It requests an upfront registration fee, which is a classic advanced fee fraud.",
+        safetyTips: [
+          "Legitimate recruiters do not request upfront safety deposits or registration fees for work-from-home tasks.",
+          "Be wary of simple tasks (e.g. liking videos) offering massive daily payouts.",
+          "Report and block unsolicited recruiters on messaging apps like WhatsApp."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on WhatsApp Recruiter channel...",
+          "Checking recruiter sender origin...",
+          "WARNING: Address recruiter-priya@career-opportunities-whatsapp-channel.com is external lookalike.",
+          "Scanning message parameters...",
+          "ALERT: Out-of-band chat redirect detected (WhatsApp: +91 XXXXX XXXXX).",
+          "ALERT: Refundable registration safety deposit fee request identified.",
+          "Score calculated: 11 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "HR Priya (WhatsApp HR) <recruiter-priya@career-opportunities-whatsapp-channel.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 11:50 AM",
+          subject: "WhatsApp Recruiter Gateway Alert"
+        },
+        body: `
+          <div class="sms-client">
+            <div class="sms-header">
+              <div class="sms-avatar">P</div>
+              <div><span class="flag-highlight" data-flag-id="0" data-number="3" data-explanation="Sender-domain mismatch: The recruiter display name 'HR Recruiter Priya' is associated with a lookalike domain recruiter-priya@career-opportunities-whatsapp-channel.com.">HR Recruiter Priya</span></div>
+              <div style="font-size: 0.65rem;">Online &bull; Career Desk</div>
+            </div>
+            <div class="sms-bubble sms-incoming">
+              Hello, I am Priya from HR. We found your resume online. We offer flexible work-from-home tasks (liking YouTube videos, posting ratings) that take only 10-20 minutes daily. 
+              <br><br>
+              Payouts are instant: <strong>₹5,000 to ₹15,000 daily</strong>. 
+              <br><br>
+              <span class="flag-highlight" data-flag-id="8" data-number="1" data-explanation="Redirecting communication out of official corporate mail channels to a personal WhatsApp chat.">To secure your slot, text us on WhatsApp: +91 98765 43210</span>.
+              <br><br>
+              (<span class="flag-highlight" data-flag-id="5" data-number="2" data-explanation="Request for an upfront registration fee or security deposit under the guise of work.">A registration safety deposit of ₹500 is refundable after first task completion</span>).
+              <div class="sms-time">11:50 AM</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 12,
+        title: "Teams Deepfake Voice Call Verification",
+        alertType: "TEAMS_CALL_LOG",
+        trigger: "Authority / Urgency",
+        categoryType: "bec",
+        correctFlags: [0, 4, 10],
+        correctVerdict: "malicious",
+        explanation: "Impersonates the CFO on a live video/audio feed using generative deepfake technology. The threat actor relies on glitches and network excuses to bypass payment signing safeguards.",
+        safetyTips: [
+          "Confirm urgent, out-of-procedure payment requests from executives via an independent channel.",
+          "Be alert to deepfake clues: robotic audio pitches, poor mouth-syncing, or laggy video filters.",
+          "Hold transaction approvals until identity is verified in-person or via multiple managers."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Video Call stream...",
+          "Analyzing call session network endpoints...",
+          "WARNING: Session initiated from external routing cfo-verification-portal@internal-teams-gateway.com.",
+          "Running real-time voice and frame sync audio-visual analysis...",
+          "ALERT: Robotic audio frequency pitch detected.",
+          "ALERT: Video sync frame lag (deepfake model artifacts) detected.",
+          "ALERT: Target asks to bypass compliance policies.",
+          "Score calculated: 12 points (Threshold >= 5 is Malicious).",
+          "Forensic report generated. Annotations updated."
+        ],
+        meta: {
+          from: "CFO Office <cfo-verification-portal@internal-teams-gateway.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 16:30 PM",
+          subject: "Active Video Call"
+        },
+        body: `
+          <div class="teams-client">
+            <div class="teams-header">
+              <span class="status-indicator"></span>
+              <span style="font-weight: bold;">LIVE CALL LOG: <span class="flag-highlight" data-flag-id="0" data-number="3" data-explanation="Sender-domain mismatch: The internal video call shows the CFO name but is actually routed via an external email ID cfo-verification-portal@internal-teams-gateway.com.">CFO Rajesh Sen</span></span>
+            </div>
+            <div class="teams-body">
+              <div class="teams-avatar-wrapper">
+                <div class="teams-avatar">RS</div>
+              </div>
+              <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-red); font-weight: bold;">[CONNECTED - ACTIVE DEEPFAKE FEED]</div>
+              <div class="teams-transcript">
+                <strong>CFO (Rajesh Sen):</strong> "Priyanka, <span class="flag-highlight" data-flag-id="4" data-number="1" data-explanation="Asks to bypass standard corporate transaction validation rules.">I need you to sign off on the wire authorization code immediately. I'll override the compliance PO tonight when I'm back.</span>"
+                <br><br>
+                <em>System Notes: The caller's voice sounds slightly robotic/synthetic with brief syncing glitches on the video frame. This is a <span class="flag-highlight" data-flag-id="10" data-number="2" data-explanation="Deepfake voice/video impersonation of a corporate officer.">Deepfake voice/video call impersonation</span>.</em>
+              </div>
+              <div class="teams-call-controls">
+                <button class="teams-btn mute"><svg class="icon" viewBox="0 0 24 24" style="stroke:#fff"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button>
+                <button class="teams-btn decline"><svg class="icon" viewBox="0 0 24 24" style="stroke:#fff"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.8 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .8 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg></button>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 13,
+        title: "Ambiguous New-Device Sign-in Notice",
+        alertType: "EMAIL_INBOX",
+        trigger: "Fear-Greed",
+        categoryType: "cred",
+        correctFlags: [6],
+        correctVerdict: "suspicious",
+        explanation: "This message uses the classic 'unusual sign-in' framing to create mild concern, but it does not ask for a password, OTP, or bank detail directly, shows no sender-domain mismatch, and includes no dangerous attachment or QR code. A generic activity alert like this is a single soft indicator on its own — enough to warrant a closer look (verify sign-ins through the official app, not the email link) but not enough by itself to confirm malicious intent. This is exactly the kind of alert a SOC analyst warns the user about rather than outright blocking.",
+        safetyTips: [
+          "Do not click links in unsolicited sign-in alerts — open the official app or site directly and check sign-in history there.",
+          "If the activity looks unfamiliar, change the password and enable MFA from the verified app, not from the email link.",
+          "Report the message to IT/security if the link destination looks unfamiliar on hover, even if nothing else seems obviously wrong."
+        ],
+        diagnosticLogs: [
+          "Initiating Automated Forensic Scan on Account Security Alert...",
+          "Checking sender domain reputation and SPF/DKIM alignment...",
+          "INFO: Sender domain resolves to a known vendor mail range; no spoofing markers detected.",
+          "Scanning message body for credential harvesting prompts...",
+          "INFO: No password, OTP, or payment fields requested directly in message.",
+          "Score calculated: 3 points (Threshold 1-4 is Suspicious).",
+          "Forensic report generated. Recommend manual review before closing."
+        ],
+        meta: {
+          from: "Microsoft 365 Security <account-security-noreply@microsoft.com>",
+          to: "priyanka@decodelabs.tech",
+          date: "Jul 1, 2026, 08:12 AM",
+          subject: "New sign-in to your Microsoft 365 account from a Windows device"
+        },
+        body: `
+          <p>Hi Priyanka,</p>
+          <br>
+          <p>We noticed a new sign-in to your Microsoft 365 account from a Windows device in Pune, Maharashtra. If this was you, no action is needed.</p>
+          <br>
+          <p style="text-align: center;">
+            <a href="#" onclick="return false;" class="flag-highlight" data-flag-id="6" data-number="1" data-explanation="Generic account-activity alert designed to trigger mild concern, but lacks any credential request, attachment, or link to a clearly suspicious domain — insufficient on its own to confirm malicious intent.">[ Review Sign-in Activity ]</a>
+          </p>
+          <br>
+          <p>If you don't recognize this activity, we recommend reviewing your recent sign-ins and enabling multi-factor authentication.</p>
+          <br>
+          <p>Microsoft Account Team</p>
+        `
+      }
+    ];
+
+    // Global App State
+    let activeTab = 'queue';
+    let currentIndex = 0;
+    let selectedFlags = [];
+    let selectedVerdict = null;
+    let correctTriagedCount = 0;
+    let totalTriagedCount = 0;
+    let isSubmitted = false;
+    let isAutoScanned = false;
+    let isCustomUpload = false;
+
+    // Track states of scenarios: resolved, userVerdict, isCorrect, selectedFlags
+    const scenarioStates = SCENARIOS.map(sc => ({
+      id: sc.id,
+      resolved: false,
+      userVerdict: null,
+      isCorrect: null,
+      selectedFlags: []
+    }));
+
+    // Sandbox state
+    let sandboxFile = null;
+
+    // Initialize Console Product
+    function init() {
+      renderAlertQueueTable();
+      renderChecklist();
+      resetTriageInputs();
+      runUrlAnalysis('www.decodelabs.tech.login-update.com');
+    }
+
+    // Toggle Mobile Sidebar Drawer
+    function toggleSidebarDrawer() {
+      const drawer = document.getElementById('sidebar-drawer');
+      drawer.classList.toggle('show');
+    }
+
+    // Switch Tabs in the SaaS Navigation Layout
+    function switchTab(tabId) {
+      activeTab = tabId;
+      
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+      });
+      
+      // Remove active class from menu
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // Show current tab
+      if (tabId === 'triage') {
+        document.getElementById('tab-content-triage').style.display = 'block';
+      } else {
+        document.getElementById(`tab-content-${tabId}`).style.display = 'block';
+        document.getElementById(`menu-${tabId}`).classList.add('active');
+      }
+
+      // Close mobile drawer on item tap
+      document.getElementById('sidebar-drawer').classList.remove('show');
+      
+      // Perform sub-renders on tab activations
+      if (tabId === 'queue') {
+        renderAlertQueueTable();
+      } else if (tabId === 'report') {
+        renderDiagnosticsReport();
+      }
+    }
+
+    // Render Alert Queue Table List
+    function renderAlertQueueTable() {
+      const tbody = document.getElementById('alert-queue-table-body');
+      tbody.innerHTML = '';
+      
+      let pendingCount = 0;
+      let resolvedCount = 0;
+
+      SCENARIOS.forEach((sc, idx) => {
+        const trState = scenarioStates[idx];
+        if (trState.resolved) {
+          resolvedCount++;
+        } else {
+          pendingCount++;
+        }
+
+        const tr = document.createElement('tr');
+        
+        let statusBadgeClass = trState.resolved ? (trState.isCorrect ? 'resolved' : 'failed') : 'pending';
+        let statusText = trState.resolved ? (trState.isCorrect ? 'RESOLVED' : 'FAILED') : 'PENDING';
+        
+        let riskClass = 'low';
+        let weightSum = 0;
+        sc.correctFlags.forEach(fId => {
+          const f = RED_FLAGS.find(rf => rf.id === fId);
+          if (f) weightSum += f.weight;
+        });
+        if (weightSum >= 5) riskClass = 'high';
+        else if (weightSum > 0) riskClass = 'medium';
+
+        tr.innerHTML = `
+          <td class="alert-row-id">#ALT-0${sc.id}</td>
+          <td>
+            <div style="font-weight: 600;">${sc.title}</div>
+            <div style="font-size: 0.7rem; color: var(--text-secondary);">${sc.meta.from}</div>
+          </td>
+          <td style="font-family: var(--font-mono); font-size: 0.75rem;">${sc.alertType}</td>
+          <td><span class="risk-badge ${riskClass}">${riskClass.toUpperCase()}</span></td>
+          <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
+          <td>
+            <button class="btn-triage-action" onclick="launchTriageWorkspace(${idx})">
+              ${trState.resolved ? 'Review' : 'Triage'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update counters in Dashboard
+      document.getElementById('metric-pending').innerText = pendingCount;
+      document.getElementById('metric-resolved').innerText = resolvedCount;
+      
+      const accuracy = totalTriagedCount > 0 ? Math.round((correctTriagedCount / totalTriagedCount) * 100) : 0;
+      document.getElementById('metric-accuracy').innerText = totalTriagedCount > 0 ? `${accuracy}%` : '--';
+      
+      // Update sidebar session stats
+      document.getElementById('sb-solved-count').innerText = `${resolvedCount} / ${SCENARIOS.length}`;
+      document.getElementById('sb-accuracy-pct').innerText = totalTriagedCount > 0 ? `${accuracy}%` : '0%';
+    }
+
+    // Launch Triage Workspace for a specific Scenario index
+    function launchTriageWorkspace(idx) {
+      currentIndex = idx;
+      switchTab('triage');
+      
+      const scState = scenarioStates[idx];
+      resetTriageInputs();
+      renderScenario(idx);
+
+      // Re-apply states if already resolved
+      if (scState.resolved) {
+        selectedFlags = [...scState.selectedFlags];
+        selectedVerdict = scState.userVerdict;
+        
+        // Check checkboxes
+        document.querySelectorAll('.flag-item-box').forEach(item => {
+          const fId = parseInt(item.getAttribute('data-id'));
+          const checkbox = item.querySelector('input');
+          if (selectedFlags.includes(fId)) {
+            item.classList.add('selected');
+            checkbox.checked = true;
+          }
+        });
+
+        // Set verdict button
+        document.querySelectorAll('.verdict-btn').forEach(btn => {
+          if (btn.getAttribute('data-verdict') === selectedVerdict) {
+            btn.classList.add('selected');
+          }
+        });
+
+        submitTriage();
+      }
+    }
+
+    // Render Checklist Red Flags UI
+    function renderChecklist() {
+      const container = document.getElementById('flags-checklist');
+      container.innerHTML = '';
+      RED_FLAGS.forEach(flag => {
+        const item = document.createElement('div');
+        item.className = 'flag-item-box';
+        item.setAttribute('data-id', flag.id);
+        item.onclick = () => toggleChecklistFlag(flag.id);
+        
+        item.innerHTML = `
+          <input type="checkbox" class="flag-chk" id="chk-${flag.id}" tabindex="-1">
+          <span class="flag-item-text">${flag.text}</span>
+          <span class="flag-pts-tag">${flag.weight} pts</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Toggle flag check
+    function toggleChecklistFlag(id) {
+      if (isSubmitted) return;
+      const index = selectedFlags.indexOf(id);
+      const item = document.querySelector(`.flag-item-box[data-id="${id}"]`);
+      const checkbox = document.getElementById(`chk-${id}`);
+
+      if (index === -1) {
+        selectedFlags.push(id);
+        item.classList.add('selected');
+        checkbox.checked = true;
+      } else {
+        selectedFlags.splice(index, 1);
+        item.classList.remove('selected');
+        checkbox.checked = false;
+      }
+      
+      updateCurrentCheckedScore();
+      validateTriageSubmission();
+    }
+
+    // Update Checked points live tag in header
+    function updateCurrentCheckedScore() {
+      let score = 0;
+      selectedFlags.forEach(fId => {
+        const f = RED_FLAGS.find(rf => rf.id === fId);
+        if (f) score += f.weight;
+      });
+      document.getElementById('risk-score-badge').innerText = `${score} pts checked`;
+    }
+
+    // Select Triage Verdict
+    function selectVerdict(verdict) {
+      if (isSubmitted) return;
+      selectedVerdict = verdict;
+      document.querySelectorAll('.verdict-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.getAttribute('data-verdict') === verdict) {
+          btn.classList.add('selected');
+        }
+      });
+      validateTriageSubmission();
+    }
+
+    // Enable/Disable submit button
+    function validateTriageSubmission() {
+      const submitBtn = document.getElementById('submit-triage-btn');
+      if (selectedVerdict !== null) {
+        submitBtn.removeAttribute('disabled');
+      } else {
+        submitBtn.setAttribute('disabled', 'true');
+      }
+    }
+
+    // Reset Triage Inputs
+    function resetTriageInputs() {
+      selectedFlags = [];
+      selectedVerdict = null;
+      isSubmitted = false;
+      
+      document.querySelectorAll('.flag-item-box').forEach(item => {
+        item.classList.remove('selected');
+        item.querySelector('input').checked = false;
+        item.style.borderColor = '';
+        item.style.background = '';
+        item.style.cursor = 'pointer';
+      });
+      document.querySelectorAll('.verdict-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      document.getElementById('risk-score-badge').innerText = `0 pts checked`;
+      document.getElementById('submit-triage-btn').style.display = 'inline-flex';
+      document.getElementById('submit-triage-btn').setAttribute('disabled', 'true');
+      document.getElementById('auto-analyze-btn').style.display = 'inline-flex';
+      document.getElementById('auto-analyze-btn').removeAttribute('disabled');
+      document.getElementById('next-scenario-btn').style.display = 'none';
+      document.getElementById('feedback-panel').style.display = 'none';
+      document.getElementById('active-annotation-box').style.display = 'none';
+      document.getElementById('safety-panel').style.display = 'none';
+      document.getElementById('terminal-box').style.display = 'none';
+      
+      document.getElementById('triage-interactive-controls').style.display = 'flex';
+      document.getElementById('triage-custom-upload-controls').style.display = 'none';
+      
+      const clientBody = document.getElementById('client-body');
+      clientBody.classList.remove('submitted');
+    }
+
+    // Render Scenario inside Left Viewer
+    function renderScenario(idx) {
+      const sc = SCENARIOS[idx];
+      const clientBody = document.getElementById('client-body');
+      
+      document.getElementById('triage-title').innerText = `Triage File ALT-0${sc.id}: ${sc.title}`;
+      document.getElementById('alert-type-badge').innerText = sc.alertType;
+      
+      if (sc.alertType === "EMAIL_INBOX") {
+        let attachmentHtml = '';
+        if (sc.attachment) {
+          attachmentHtml = `
+            <div class="attachment-box" style="margin-top:16px; padding:10px 14px; border:1px solid var(--border-color); border-radius:6px; background:rgba(30,41,59,0.3); display:flex; align-items:center; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg class="icon" viewBox="0 0 24 24" style="color:var(--text-secondary); width:20px; height:20px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                <div style="font-size:0.8rem; font-weight:500;">
+                  <span>${sc.attachment.name}</span>
+                  <span style="font-size:0.7rem; color:var(--text-secondary);">(${sc.attachment.size})</span>
+                </div>
+              </div>
+              <span class="meta-tag flag-highlight" data-flag-id="3" data-number="${sc.correctFlags.indexOf(3) + 1}" data-explanation="${sc.attachment.explanation}">INSPECT FILE</span>
+            </div>
+          `;
+        }
+
+        let qrHtml = '';
+        if (sc.qrCode) {
+          qrHtml = `
+            <div class="qr-container flag-highlight" data-flag-id="9" data-number="${sc.correctFlags.indexOf(9) + 1}" data-explanation="Quishing attack: Using fake QR codes to transfer coordinates to personal smartphone camera devices, dodging standard filters.">
+              <svg class="qr-svg" width="90" height="90" viewBox="0 0 100 100">
+                <rect width="100" height="100" fill="#ffffff"/>
+                <rect x="10" y="10" width="30" height="30" fill="#000"/>
+                <rect x="15" y="15" width="20" height="20" fill="#fff"/>
+                <rect x="20" y="20" width="10" height="10" fill="#000"/>
+                <rect x="60" y="10" width="30" height="30" fill="#000"/>
+                <rect x="65" y="15" width="20" height="20" fill="#fff"/>
+                <rect x="70" y="20" width="10" height="10" fill="#000"/>
+                <rect x="10" y="60" width="30" height="30" fill="#000"/>
+                <rect x="15" y="65" width="20" height="20" fill="#fff"/>
+                <rect x="20" y="70" width="10" height="10" fill="#000"/>
+                <rect x="45" y="20" width="5" height="15" fill="#000"/>
+                <rect x="45" y="45" width="10" height="10" fill="#000"/>
+                <rect x="60" y="45" width="15" height="5" fill="#000"/>
+                <rect x="65" y="60" width="20" height="10" fill="#000"/>
+              </svg>
+              <span class="qr-caption" style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-secondary); text-align:center; margin-top:4px; display:block;">Scan QR Profile Setup</span>
+            </div>
+          `;
+        }
+
+        clientBody.innerHTML = `
+          <div class="email-client">
+            <div class="email-headers">
+              <div class="header-line">
+                <span class="header-name">From:</span>
+                <span class="header-val">
+                  <span class="flag-highlight" data-flag-id="0" data-number="${sc.correctFlags.indexOf(0) + 1}" data-explanation="Sender address domain mismatch: ${sc.meta.from.substring(sc.meta.from.indexOf('<'))} is external lookalike domain.">${sc.meta.from}</span>
+                </span>
+              </div>
+              <div class="header-line">
+                <span class="header-name">To:</span>
+                <span class="header-val">${sc.meta.to}</span>
+              </div>
+              <div class="header-line">
+                <span class="header-name">Date:</span>
+                <span class="header-val">${sc.meta.date}</span>
+              </div>
+              <div class="header-line">
+                <span class="header-name">Subject:</span>
+                <span class="header-val" style="font-weight: 600;">${sc.meta.subject}</span>
+              </div>
+            </div>
+            <div class="email-body-view">
+              ${sc.body}
+              ${attachmentHtml}
+              ${qrHtml}
+            </div>
+          </div>
+        `;
+      } else {
+        clientBody.innerHTML = sc.body;
+      }
+
+      // Hook up annotations hover descriptions
+      const highlights = clientBody.querySelectorAll('.flag-highlight');
+      highlights.forEach(hl => {
+        hl.addEventListener('click', (e) => {
+          if (!isSubmitted) return;
+          e.stopPropagation();
+          const exp = hl.getAttribute('data-explanation');
+          const flagId = hl.getAttribute('data-flag-id');
+          const num = hl.getAttribute('data-number');
+          showForensicsAnnotationBox(num, flagId, exp);
+        });
+      });
+    }
+
+    // Show Forensics Annotation details
+    function showForensicsAnnotationBox(num, flagId, text) {
+      const box = document.getElementById('active-annotation-box');
+      const flagText = RED_FLAGS.find(f => f.id == flagId)?.text || "Forensic Flagged Indicator";
+      box.style.display = 'block';
+      box.innerHTML = `
+        <div class="safety-remediation-card" style="border-color: var(--color-red-border); background: var(--color-red-bg); margin-top:12px;">
+          <div class="safety-remediation-title" style="color: var(--color-red);">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Indicator #${num}: ${flagText}
+          </div>
+          <div style="color: var(--text-primary); font-size: 0.8rem; line-height: 1.4;">${text}</div>
+        </div>
+      `;
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Submit Triage Analysis
+    function submitTriage() {
+      if (isSubmitted) return;
+      isSubmitted = true;
+      
+      const scenario = SCENARIOS[currentIndex];
+      const clientBody = document.getElementById('client-body');
+      clientBody.classList.add('submitted');
+      
+      const correct = scenario.correctFlags;
+      
+      // Update check colors
+      document.querySelectorAll('.flag-item-box').forEach(item => {
+        const flagId = parseInt(item.getAttribute('data-id'));
+        item.style.cursor = 'default';
+        if (correct.includes(flagId)) {
+          item.style.borderColor = 'var(--color-green)';
+          item.style.background = 'var(--color-green-bg)';
+        } else if (selectedFlags.includes(flagId)) {
+          item.style.borderColor = 'var(--color-red)';
+          item.style.background = 'var(--color-red-bg)';
+        }
+      });
+
+      // Map scores and evaluate correctness
+      const isVerdictCorrect = (selectedVerdict === scenario.correctVerdict);
+      
+      // Save states back to queue states
+      const scState = scenarioStates[currentIndex];
+      scState.resolved = true;
+      scState.userVerdict = selectedVerdict;
+      scState.isCorrect = isVerdictCorrect;
+      scState.selectedFlags = [...selectedFlags];
+
+      if (!isAutoScanned) {
+        totalTriagedCount++;
+        if (isVerdictCorrect) {
+          correctTriagedCount++;
+        }
+      }
+
+      // Highlight active flags
+      document.querySelectorAll('.flag-highlight').forEach(hl => {
+        const flagId = parseInt(hl.getAttribute('data-flag-id'));
+        if (correct.includes(flagId)) {
+          hl.classList.add('active-flag');
+        }
+      });
+
+      // Display Feedback
+      const feedbackPanel = document.getElementById('feedback-panel');
+      const verdictBanner = document.getElementById('verdict-banner');
+      const bannerTitle = document.getElementById('verdict-banner-title');
+      const bannerText = document.getElementById('verdict-banner-desc');
+      
+      feedbackPanel.style.display = 'flex';
+      
+      if (isAutoScanned) {
+        verdictBanner.className = 'feedback-verdict-banner autoscan';
+        verdictBanner.style.borderColor = 'var(--color-cyan-border)';
+        verdictBanner.style.background = 'var(--color-cyan-bg)';
+        verdictBanner.style.color = 'var(--color-cyan)';
+        bannerTitle.innerText = `AUTOMATED SCAN COMPLETED`;
+        bannerText.innerText = `Threat indicators successfully mapped to safety decision tree guidelines.`;
+      } else {
+        verdictBanner.style.borderColor = '';
+        verdictBanner.style.background = '';
+        verdictBanner.style.color = '';
+        if (isVerdictCorrect) {
+          verdictBanner.className = 'feedback-verdict-banner correct';
+          bannerTitle.innerText = `Triage Assessment Correct`;
+          bannerText.innerText = `The calculated risk matches the correct verdict action: ${scenario.correctVerdict.toUpperCase()}`;
+        } else {
+          verdictBanner.className = 'feedback-verdict-banner incorrect';
+          bannerTitle.innerText = `Triage Assessment Mismatch`;
+          bannerText.innerText = `Expected action: ${scenario.correctVerdict.toUpperCase()}. Correct threat identifiers listed below.`;
+        }
+      }
+
+      document.getElementById('correct-verdict-val').innerText = scenario.correctVerdict.toUpperCase();
+      document.getElementById('trigger-pill').innerText = scenario.trigger;
+      document.getElementById('explanation-text').innerHTML = `
+        <strong>Scoping Summary:</strong> ${scenario.explanation}
+        <br><br>
+        <span style="color: var(--color-cyan); font-weight: 500; font-size:0.75rem;">Interactive Check: Click highlighted elements in the mock viewer to inspect forensic logs.</span>
+      `;
+
+      // Inject Safety remediations
+      const safetyList = document.getElementById('safety-list');
+      safetyList.innerHTML = '';
+      scenario.safetyTips.forEach(tip => {
+        const li = document.createElement('li');
+        li.innerText = tip;
+        safetyList.appendChild(li);
+      });
+      document.getElementById('safety-panel').style.display = 'block';
+
+      // Toggle Buttons
+      document.getElementById('submit-triage-btn').style.display = 'none';
+      document.getElementById('auto-analyze-btn').style.display = 'none';
+      document.getElementById('next-scenario-btn').style.display = 'inline-flex';
+      
+      // Auto-show first callout annotation if present
+      if (scenario.correctFlags.length > 0) {
+        const firstHl = clientBody.querySelector('.flag-highlight.active-flag');
+        if (firstHl) {
+          const exp = firstHl.getAttribute('data-explanation');
+          const flagId = firstHl.getAttribute('data-flag-id');
+          const num = firstHl.getAttribute('data-number');
+          showForensicsAnnotationBox(num, flagId, exp);
+        }
+      }
+
+      isAutoScanned = false; // reset
+    }
+
+    // Run Simulated Forensic Terminal Scan
+    function runAutoAnalysis() {
+      if (isSubmitted) return;
+      isAutoScanned = true;
+
+      const scenario = SCENARIOS[currentIndex];
+      const autoBtn = document.getElementById('auto-analyze-btn');
+      const submitBtn = document.getElementById('submit-triage-btn');
+      
+      autoBtn.setAttribute('disabled', 'true');
+      submitBtn.setAttribute('disabled', 'true');
+
+      // Hide widgets, show terminal
+      document.getElementById('terminal-box').style.display = 'block';
+      const terminalLogs = document.getElementById('terminal-logs');
+      terminalLogs.innerHTML = '';
+
+      let logIndex = 0;
+      const logs = scenario.diagnosticLogs || [
+        "Initializing scan...",
+        "Evaluating threat flags...",
+        "Completing diagnostic report..."
+      ];
+
+      function printNextLog() {
+        if (logIndex < logs.length) {
+          const div = document.createElement('div');
+          div.className = 'terminal-row';
+          const line = logs[logIndex];
+          if (line.includes("WARNING")) div.className = 'terminal-row warning';
+          else if (line.includes("ALERT")) div.className = 'terminal-row danger';
+          else if (line.includes("SUCCESS") || line.includes("Score")) div.className = 'terminal-row success';
+          
+          div.innerText = `[+] ${line}`;
+          terminalLogs.appendChild(div);
+          terminalLogs.scrollTop = terminalLogs.scrollHeight;
+          
+          logIndex++;
+          setTimeout(printNextLog, 250);
+        } else {
+          // Finalize analysis
+          selectedFlags = [...scenario.correctFlags];
+          document.querySelectorAll('.flag-item-box').forEach(item => {
+            const fId = parseInt(item.getAttribute('data-id'));
+            const checkbox = item.querySelector('input');
+            if (selectedFlags.includes(fId)) {
+              item.classList.add('selected');
+              checkbox.checked = true;
+            }
+          });
+
+          updateCurrentCheckedScore();
+          selectVerdict(scenario.correctVerdict);
+          submitTriage();
+
+          autoBtn.removeAttribute('disabled');
+        }
+      }
+
+      printNextLog();
+    }
+
+    // Next alert scenario in simulation queue
+    function nextScenario() {
+      currentIndex++;
+      if (currentIndex >= SCENARIOS.length) {
+        alert("All alerts in the triage queue checked! Wrapping back to the main queue.");
+        switchTab('queue');
+      } else {
+        launchTriageWorkspace(currentIndex);
+      }
+    }
+
+    // Restart simulator
+    function resetSimulator() {
+      if (confirm("Restart triage session? All unresolved status metrics will reset.")) {
+        scenarioStates.forEach(st => {
+          st.resolved = false;
+          st.userVerdict = null;
+          st.isCorrect = null;
+          st.selectedFlags = [];
+        });
+        totalTriagedCount = 0;
+        correctTriagedCount = 0;
+        currentIndex = 0;
+        switchTab('queue');
+      }
+    }
+
+
+    /* Custom Sandbox Upload script */
+    function handleSandboxUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        sandboxFile = {
+          name: file.name,
+          size: file.size,
+          dataUrl: e.target.result
+        };
+        
+        document.getElementById('sb-filename').innerText = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+        document.getElementById('sb-img-preview').src = e.target.result;
+        document.getElementById('sandbox-preview-container').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Launch Manual Triage Workspace for Custom Upload
+    function launchSandboxTriage() {
+      if (!sandboxFile) return;
+      isCustomUpload = true;
+      switchTab('triage');
+      resetTriageInputs();
+
+      document.getElementById('triage-title').innerText = `Screenshot Forensic Check: ${sandboxFile.name}`;
+      document.getElementById('alert-type-badge').innerText = "CUSTOM_UPLOAD";
+      document.getElementById('alert-type-badge').classList.remove('alert-active');
+      
+      document.getElementById('triage-interactive-controls').style.display = 'none';
+      document.getElementById('triage-custom-upload-controls').style.display = 'flex';
+
+      const clientBody = document.getElementById('client-body');
+      clientBody.innerHTML = `
+        <div class="email-client" style="border-color: var(--color-cyan);">
+          <div class="email-meta-pane" style="padding:12px; background:rgba(6,182,212,0.02); border-bottom:1px solid var(--border-color); font-size:0.8rem;">
+            <div class="meta-row">
+              <span class="meta-label" style="font-family:var(--font-mono); color:var(--text-secondary); width:80px; display:inline-block;">Diagnostic:</span>
+              <span class="meta-value" style="color:var(--color-cyan); font-weight:600;">Manual Screenshot Analysis Sandbox</span>
+            </div>
+            <div class="meta-row" style="margin-top:4px;">
+              <span class="meta-label" style="font-family:var(--font-mono); color:var(--text-secondary); width:80px; display:inline-block;">Filename:</span>
+              <span class="meta-value">${sandboxFile.name}</span>
+            </div>
+          </div>
+          <div class="email-content-pane" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:#080b13; padding:16px; min-height:360px;">
+            <img src="${sandboxFile.dataUrl}" alt="Forensics Alert Screenshot" style="max-width:100%; max-height:320px; border:1px solid var(--border-color); border-radius:4px; box-shadow:var(--shadow-lg);">
+            <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-secondary); text-align:center; max-width:420px; background:var(--bg-card); padding:8px; border-radius:6px; border:1px solid var(--border-color);">
+              [🔒 LOCAL DIAGNOSTIC] Visual inspector active. Parse URLs found in image using the decoder in the sidebar.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function resetCustomUpload() {
+      isCustomUpload = false;
+      switchTab('queue');
+    }
+
+    function downloadForensicNotes() {
+      const notes = document.getElementById('sandbox-notes-box').value;
+      if (!notes.trim()) {
+        alert("Please write notes in the workspace notepad first.");
+        return;
+      }
+      
+      const text = `PHISH TRIAGE INCIDENT REPORT\nGenerated: ${new Date().toISOString()}\n====================================\n\nNotes & Forensic Details:\n\n${notes}`;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Incident_Triage_Notes_${Date.now()}.txt`;
+      a.click();
+    }
+
+
+    /* URL Decoder scripts */
+    const DOUBLE_TLDS = [
+      'co.in', 'gov.in', 'org.in', 'net.in', 'firm.in', 'gen.in', 'ind.in',
+      'co.uk', 'org.uk', 'me.uk', 'ltd.uk', 'plc.uk',
+      'com.au', 'net.au', 'org.au',
+      'com.sg', 'edu.sg', 'co.za', 'com.br', 'co.jp', 'ne.jp'
+    ];
+
+    function decodeURL(urlStr) {
+      urlStr = urlStr.trim();
+      if (!urlStr) return null;
+      
+      let protocol = '';
+      let hostname = '';
+      let pathname = '';
+      
+      const protocolMatch = urlStr.match(/^https?:\/\//i);
+      if (protocolMatch) {
+        protocol = protocolMatch[0];
+        urlStr = urlStr.substring(protocol.length);
+      } else {
+        protocol = 'https://';
+      }
+
+      const slashIndex = urlStr.indexOf('/');
+      if (slashIndex !== -1) {
+        hostname = urlStr.substring(0, slashIndex);
+        pathname = urlStr.substring(slashIndex);
+      } else {
+        hostname = urlStr;
+        pathname = '';
+      }
+
+      const parts = hostname.split('.');
+      if (parts.length < 2) {
+        return { error: "Invalid domain structure. Must have at least a root domain name." };
+      }
+
+      let tld = '';
+      let rootDomain = '';
+      let subdomains = [];
+
+      const lastTwo = parts.slice(-2).join('.');
+      if (parts.length >= 3 && DOUBLE_TLDS.includes(lastTwo.toLowerCase())) {
+        tld = lastTwo;
+        rootDomain = parts[parts.length - 3] + '.' + tld;
+        subdomains = parts.slice(0, parts.length - 3);
+      } else {
+        tld = parts[parts.length - 1];
+        rootDomain = parts[parts.length - 2] + '.' + tld;
+        subdomains = parts.slice(0, parts.length - 2);
+      }
+
+      return {
+        protocol: protocol,
+        subdomain: subdomains.length > 0 ? subdomains.join('.') + '.' : '',
+        rootDomain: rootDomain,
+        path: pathname
+      };
+    }
+
+    function loadUrlDecoderPreset(url) {
+      document.getElementById('dec-url-input').value = url;
+      document.querySelectorAll('.decoder-preset-btn').forEach(btn => {
+        if (btn.innerText.includes(url.substring(0, 15))) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      runUrlAnalysis(url);
+    }
+
+    function runUrlAnalysis(url) {
+      const display = document.getElementById('decoded-url-parts');
+      if (!url.trim()) {
+        display.innerHTML = `<span style="color: var(--text-muted); font-size:0.85rem;">Input a URL or click a preset on the left to deconstruct...</span>`;
+        return;
+      }
+
+      const decoded = decodeURL(url);
+      if (!decoded) return;
+
+      if (decoded.error) {
+        display.innerHTML = `<span style="color: var(--color-red); font-size: 0.8rem;">[!] Parser Error: ${decoded.error}</span>`;
+        return;
+      }
+
+      let html = '';
+      html += `<span class="part-protocol">${decoded.protocol}</span>`;
+      if (decoded.subdomain) {
+        html += `<span class="part-subdomain" title="Subdomain prefix">${decoded.subdomain}</span>`;
+      }
+      html += `<span class="part-root" title="Primary Root Owner">${decoded.rootDomain}</span>`;
+      if (decoded.path) {
+        html += `<span class="part-path">${decoded.path}</span>`;
+      }
+
+      display.innerHTML = html;
+    }
+
+
+    /* Playbook accordion script */
+    function togglePlaybookBlock(id) {
+      const el = document.getElementById(`playbook-body-${id}`);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+
+    /* Diagnostics log Tab metrics */
+    function renderDiagnosticsReport() {
+      document.getElementById('diag-metric-solved').innerText = `${scenarioStates.filter(s=>s.resolved).length} / ${SCENARIOS.length}`;
+      
+      const accuracy = totalTriagedCount > 0 ? Math.round((correctTriagedCount / totalTriagedCount) * 100) : 0;
+      document.getElementById('diag-metric-accuracy').innerText = totalTriagedCount > 0 ? `${accuracy}%` : '0%';
+      
+      // Calculate rating
+      const solved = scenarioStates.filter(s=>s.resolved).length;
+      let rating = "TRAINEE";
+      let ratingColor = 'var(--color-yellow)';
+      if (solved >= 10 && accuracy >= 85) {
+        rating = "SENIOR FORENSIC ANALYST";
+        ratingColor = 'var(--color-green)';
+      } else if (solved >= 5 && accuracy >= 65) {
+        rating = "JUNIOR ANALYST";
+        ratingColor = 'var(--color-cyan)';
+      }
+      document.getElementById('diag-metric-rating').innerText = rating;
+      document.getElementById('diag-metric-rating').style.color = ratingColor;
+
+      // Group scenarios category accuracy stats
+      const categories = {
+        bec: { solved: 0, correct: 0 },
+        billing: { solved: 0, correct: 0 },
+        cred: { solved: 0, correct: 0 },
+        india: { solved: 0, correct: 0 }
+      };
+
+      SCENARIOS.forEach((sc, idx) => {
+        const state = scenarioStates[idx];
+        if (state.resolved) {
+          categories[sc.categoryType].solved++;
+          if (state.isCorrect) {
+            categories[sc.categoryType].correct++;
+          }
+        }
+      });
+
+      // Update Bar charts width & text
+      Object.keys(categories).forEach(cat => {
+        const stat = categories[cat];
+        const pct = stat.solved > 0 ? Math.round((stat.correct / stat.solved) * 100) : 0;
+        document.getElementById(`chart-val-${cat}`).innerText = stat.solved > 0 ? `${pct}% (${stat.correct}/${stat.solved})` : 'No logs checked';
+        document.getElementById(`chart-bar-${cat}`).style.width = `${pct}%`;
+      });
+    }
+
+    // Trigger local screenshot handler if uploaded from within workspace header
+    function handleCustomUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        sandboxFile = {
+          name: file.name,
+          size: file.size,
+          dataUrl: e.target.result
+        };
+        launchSandboxTriage();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Initial load
+    init();
+  </script>
+</body>
+</html>
