@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DecodeLabs Cybersecurity Project 4 - System Vulnerability Checklist Dashboard. Perform local machine audits and generate professional compliance reports.">
+    <title>DecodeLabs Project 4: System Vulnerability Checklist</title>
+    <!-- Outfit Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Glow Blobs -->
+    <div class="glow-blob glow-cyan"></div>
+    <div class="glow-blob glow-purple"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <div class="logo-text">
+                    <span class="logo-title">DECODELABS</span>
+                    <span class="logo-subtitle">Project 4 - Audit OS</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button id="nav-dashboard" class="nav-btn active">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </button>
+                <button id="nav-scanner" class="nav-btn">
+                    <i class="fa-solid fa-terminal"></i> Audit Terminal
+                </button>
+                <button id="nav-calculator" class="nav-btn">
+                    <i class="fa-solid fa-calculator"></i> CVSS Calculator
+                </button>
+                <button id="nav-report" class="nav-btn">
+                    <i class="fa-solid fa-file-shield"></i> Submission Report
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="auditor-profile">
+                    <div class="profile-pic">PJ</div>
+                    <div class="profile-info">
+                        <span class="profile-name">Priyanka Jain</span>
+                        <span class="profile-role">Security Auditor</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div>
+                    <h1 class="page-title">System Vulnerability Checklist</h1>
+                    <p class="page-subtitle">Continuous Assurance & Machine Hardening Platform</p>
+                </div>
+                <div class="system-badge-container">
+                    <span id="system-status-badge" class="badge badge-warning">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Action Required
+                    </span>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-pane active">
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Security Posture Score</span>
+                            <i class="fa-solid fa-gauge-high metric-icon cyan-text"></i>
+                        </div>
+                        <div class="metric-value" id="security-score-val">75%</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar cyan-bg" id="security-score-bar" style="width: 75%;"></div>
+                        </div>
+                        <p class="metric-desc">Based on 4-step checklist compliance.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Active Vulnerabilities</span>
+                            <i class="fa-solid fa-bug metric-icon red-text"></i>
+                        </div>
+                        <div class="metric-value" id="vuln-count-val">3</div>
+                        <div class="vuln-status-text red-text">
+                            <i class="fa-solid fa-circle-exclamation"></i> 2 High, 1 Medium
+                        </div>
+                        <p class="metric-desc">Requires immediate remediation.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">OS Compliance Status</span>
+                            <i class="fa-solid fa-clipboard-check metric-icon purple-text"></i>
+                        </div>
+                        <div class="metric-value">PASSING</div>
+                        <div class="compliance-details purple-text">
+                            <i class="fa-solid fa-shield"></i> NIST 800-53 / CIS V8
+                        </div>
+                        <p class="metric-desc">Baseline standards mapped.</p>
+                    </div>
+                </div>
+
+                <!-- Main Grid -->
+                <div class="dashboard-grid">
+                    <!-- Interactive Checklist -->
+                    <div class="card checklist-card">
+                        <h2 class="card-title"><i class="fa-solid fa-list-check"></i> Checklist Step Progress</h2>
+                        <p class="card-desc">Audit your system and check the boxes below to update your security posture.</p>
+                        
+                        <div class="checklist-items">
+                            <!-- Item 1 -->
+                            <div class="checklist-item done">
+                                <div class="item-checkbox-container">
+                                    <input type="checkbox" id="check-identity" checked>
+                                    <label for="check-identity" class="item-label">
+                                        <span class="item-title">Step 1: Identity Front Door</span>
+                                        <span class="item-desc">Validate password strength, enforce minimum 12 chars length, and set 5 failed attempts lockout threshold.</span>
+                                    </label>
+                                </div>
+                                <span class="badge badge-success">Secured</span>
+                            </div>
+
+                            <!-- Item 2 -->
+                            <div class="checklist-item done">
+                                <div class="item-checkbox-container">
+                                    <input type="checkbox" id="check-patch" checked>
+                                    <label for="check-patch" class="item-label">
+                                        <span class="item-title">Step 2: Software Decay & Patch Management</span>
+                                        <span class="item-desc">Verify automated OS updates are active, browsers are updated, and scan for Shadow IT.</span>
+                                    </label>
+                                </div>
+                                <span class="badge badge-success">Secured</span>
+                            </div>
+
+                            <!-- Item 3 -->
+                            <div class="checklist-item">
+                                <div class="item-checkbox-container">
+                                    <input type="checkbox" id="check-human">
+                                    <label for="check-human" class="item-label">
+                                        <span class="item-title">Step 3: Human Perimeter Auditing</span>
+                                        <span class="item-desc">Ensure the Guest account is disabled, restrict privilege creep, and verify lockscreen timeouts.</span>
+                                    </label>
+                                </div>
+                                <span class="badge badge-warning" id="badge-human">Reviewing</span>
+                            </div>
+
+                            <!-- Item 4 -->
+                            <div class="checklist-item">
+                                <div class="item-checkbox-container">
+                                    <input type="checkbox" id="check-network">
+                                    <label for="check-network" class="item-label">
+                                        <span class="item-title">Step 4: Network & Endpoint Hygiene</span>
+                                        <span class="item-desc">Confirm local Windows firewall is active on all profiles and C: drive encryption is enabled.</span>
+                                    </label>
+                                </div>
+                                <span class="badge badge-warning" id="badge-network">Reviewing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Breakdown -->
+                    <div class="card risk-card">
+                        <h2 class="card-title"><i class="fa-solid fa-shield-heart"></i> Active Vulnerability Log</h2>
+                        <p class="card-desc">Vulnerabilities detected on your local machine during the current audit phase.</p>
+
+                        <div class="vuln-list">
+                            <!-- Vuln 1 -->
+                            <div class="vuln-item high-severity" id="vuln-card-length">
+                                <div class="vuln-details">
+                                    <span class="vuln-title">Minimum Password Length set to 0</span>
+                                    <span class="vuln-sub">Category: Local Identity | Policy: Insecure Default</span>
+                                </div>
+                                <div class="vuln-action">
+                                    <span class="badge badge-danger">High (7.3)</span>
+                                </div>
+                            </div>
+
+                            <!-- Vuln 2 -->
+                            <div class="vuln-item high-severity" id="vuln-card-lockout">
+                                <div class="vuln-details">
+                                    <span class="vuln-title">Account Lockout Policy Disabled (Never)</span>
+                                    <span class="vuln-sub">Category: Local Identity | Policy: Brute-Force Exposed</span>
+                                </div>
+                                <div class="vuln-action">
+                                    <span class="badge badge-danger">High (7.5)</span>
+                                </div>
+                            </div>
+
+                            <!-- Vuln 3 -->
+                            <div class="vuln-item medium-severity" id="vuln-card-history">
+                                <div class="vuln-details">
+                                    <span class="vuln-title">No Password History Maintained</span>
+                                    <span class="vuln-sub">Category: Local Identity | Policy: Password Reuse</span>
+                                </div>
+                                <div class="vuln-action">
+                                    <span class="badge badge-warning">Medium (5.3)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-actions">
+                            <button class="btn btn-primary btn-full" id="btn-remediate-sim">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Simulate Auto-Remediation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: AUDIT TERMINAL -->
+            <section id="tab-scanner" class="tab-pane">
+                <div class="card terminal-card">
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <span class="dot red-dot"></span>
+                            <span class="dot yellow-dot"></span>
+                            <span class="dot green-dot"></span>
+                        </div>
+                        <div class="terminal-title">PowerShell (Admin) - audit_scripts\run_audit.ps1</div>
+                    </div>
+                    <div class="terminal-body" id="terminal-screen">
+                        <div class="terminal-line"><span class="prompt">PS D:\priyanka\projects\DecodeLabs-Internship\Task-4-Priyanka&gt;</span> <span class="cmd-text">.\audit_scripts\run_audit.ps1</span></div>
+                        <div class="terminal-line text-muted">Press the "Start System Scan" button below to execute the audit diagnostic rules...</div>
+                    </div>
+                    <div class="terminal-controls">
+                        <button class="btn btn-secondary" id="btn-clear-terminal"><i class="fa-solid fa-trash-can"></i> Clear Screen</button>
+                        <button class="btn btn-primary" id="btn-start-scan"><i class="fa-solid fa-play"></i> Start System Scan</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: CVSS CALCULATOR -->
+            <section id="tab-calculator" class="tab-pane">
+                <div class="calculator-container">
+                    <div class="card calc-metrics-card">
+                        <h2 class="card-title"><i class="fa-solid fa-calculator"></i> CVSS v4.0 Vulnerability Calculator</h2>
+                        <p class="card-desc">Adjust the Base Score parameters below to evaluate the severity rating of any discovered vulnerability.</p>
+
+                        <div class="metric-selectors">
+                            <!-- AV -->
+                            <div class="select-group">
+                                <label for="metric-av">Attack Vector (AV)</label>
+                                <select id="metric-av" class="calc-select">
+                                    <option value="0.85">Network (N) - Remote exploit across Internet</option>
+                                    <option value="0.62">Adjacent Network (A) - Exploit via Local Wi-Fi/LAN</option>
+                                    <option value="0.55" selected>Local (L) - Physical or local user session</option>
+                                    <option value="0.20">Physical (P) - Direct physical access to device</option>
+                                </select>
+                            </div>
+
+                            <!-- AC -->
+                            <div class="select-group">
+                                <label for="metric-ac">Attack Complexity (AC)</label>
+                                <select id="metric-ac" class="calc-select">
+                                    <option value="0.77" selected>Low (L) - No special conditions required</option>
+                                    <option value="0.44">High (H) - Requires specific timing, setup, or bypasses</option>
+                                </select>
+                            </div>
+
+                            <!-- PR -->
+                            <div class="select-group">
+                                <label for="metric-pr">Privileges Required (PR)</label>
+                                <select id="metric-pr" class="calc-select">
+                                    <option value="0.85">None (N) - Exploitable by unauthenticated user</option>
+                                    <option value="0.62" selected>Low (L) - Requires basic local user privileges</option>
+                                    <option value="0.27">High (H) - Requires administrative privileges</option>
+                                </select>
+                            </div>
+
+                            <!-- UI -->
+                            <div class="select-group">
+                                <label for="metric-ui">User Interaction (UI)</label>
+                                <select id="metric-ui" class="calc-select">
+                                    <option value="0.85" selected>None (N) - No interaction from user needed</option>
+                                    <option value="0.62">Required (R) - Requires user clicking link/opening file</option>
+                                </select>
+                            </div>
+
+                            <!-- VC -->
+                            <div class="select-group">
+                                <label for="metric-vc">Confidentiality Impact (VC)</label>
+                                <select id="metric-vc" class="calc-select">
+                                    <option value="0.56" selected>High (H) - Total disclosure of local credentials/data</option>
+                                    <option value="0.22">Low (L) - Limited data disclosure</option>
+                                    <option value="0.00">None (N) - No confidentiality impact</option>
+                                </select>
+                            </div>
+
+                            <!-- VI -->
+                            <div class="select-group">
+                                <label for="metric-vi">Integrity Impact (VI)</label>
+                                <select id="metric-vi" class="calc-select">
+                                    <option value="0.56" selected>High (H) - Total modification of OS configuration</option>
+                                    <option value="0.22">Low (L) - Minor modifications possible</option>
+                                    <option value="0.00">None (N) - No integrity impact</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card calc-score-card">
+                        <div class="score-display-container">
+                            <span class="score-label">CVSS Base Score</span>
+                            <div class="score-radial">
+                                <svg class="score-ring" width="160" height="160">
+                                    <circle class="ring-bg" cx="80" cy="80" r="70"></circle>
+                                    <circle class="ring-progress" id="calc-score-ring" cx="80" cy="80" r="70" style="stroke-dashoffset: 118.75;"></circle>
+                                </svg>
+                                <div class="score-number-container">
+                                    <span class="score-number" id="calc-score-val">7.3</span>
+                                    <span class="score-severity text-danger" id="calc-severity-val">HIGH</span>
+                                </div>
+                            </div>
+                            <div class="score-vector-string">
+                                <strong>Vector String:</strong>
+                                <span id="calc-vector-str">CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N</span>
+                            </div>
+                            <div class="score-explanation text-muted">
+                                This score is calculated dynamically based on the Common Vulnerability Scoring System (CVSS) v4.0 metrics standard.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: SUBMISSION REPORT -->
+            <section id="tab-report" class="tab-pane">
+                <div class="card report-card">
+                    <div class="report-header">
+                        <h2>Formal Vulnerability Report (Submission Copy)</h2>
+                        <button class="btn btn-secondary btn-sm" id="btn-copy-report"><i class="fa-solid fa-copy"></i> Copy Markdown</button>
+                    </div>
+                    <div class="report-body" id="report-view-container">
+                        <!-- Loaded via JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script File -->
+    <script src="app.js"></script>
+</body>
+</html>
