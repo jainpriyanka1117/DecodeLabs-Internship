@@ -22,7 +22,7 @@ DecodeLabs-Internship/
 │   └── PROJECT_REPORT.md          # Technical analysis report
 │
 ├── Task-2-Priyanka/               # Task 2: Advanced Vigenère Cipher
-│   ├── assets/                    # Task 2 preview screenshots (place screenshots here)
+│   ├── assets/                    # Task 2 preview screenshots
 │   ├── index.html                 # Interactive landing page
 │   ├── script.js                  # Frontend cipher logic & visualizer
 │   ├── style.css                  # Custom cyberpunk styles
@@ -30,7 +30,7 @@ DecodeLabs-Internship/
 │   └── README.md                  # Task 2 documentation & math guide
 │
 ├── Task-3-Priyanka/               # Task 3: Phishing Awareness Analysis (Phish Triage)
-│   ├── assets/                    # Task 3 preview screenshots (place screenshots here)
+│   ├── assets/                    # Task 3 preview screenshots
 │   ├── index.html                 # Interactive SOC-analyst triage simulator
 │   ├── Phishing_Awareness_Analysis_Report.docx  # Methodology write-up & case studies
 │   └── README.md                  # Task 3 documentation
