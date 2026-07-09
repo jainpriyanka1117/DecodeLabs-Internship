@@ -35,6 +35,17 @@ DecodeLabs-Internship/
 │   ├── Phishing_Awareness_Analysis_Report.docx  # Methodology write-up & case studies
 │   └── README.md                  # Task 3 documentation
 │
+├── Task-4-Priyanka/               # Task 4: System Vulnerability Checklist
+│   ├── assets/                    # Task 4 preview screenshots
+│   ├── audit_scripts/             # PowerShell audit & remediation scripts
+│   │   ├── run_audit.ps1
+│   │   └── remediate.ps1
+│   ├── reports/                   # Technical vulnerability report
+│   │   └── vulnerability_report.md
+│   ├── app.js                     # Dashboard frontend engine
+│   ├── index.html                 # Interactive dashboard Web UI
+│   └── style.css                  # Custom styling
+│
 ├── .gitignore                     # Git ignore rules
 ├── LICENSE                        # Project License
 └── README.md                      # Root repository guide (This file)
@@ -77,5 +88,11 @@ An interactive SOC-analyst triage simulator ("Phish Triage") that teaches phishi
 
 ---
 
-## 🛠️ Future Tasks (Coming Soon)
-*   **Task 4**: *Awaiting Release*
+### 4. 🛡️ [Task 4: System Vulnerability Checklist](./Task-4-Priyanka)
+An interactive cybersecurity audit platform and machine hardening interface. It features a simulated PowerShell terminal environment that executes local OS checks, a CVSS v4.0 calculator for risk profiling, a dynamic security posture score tracker, and a completed administrative vulnerability report.
+
+*   **Interfaces**: Interactive Web UI Dashboard (HTML/CSS/JS) & Terminal Command-Line scripts (PowerShell).
+*   **Concepts Demonstrated**: OS baseline hardening (password length, account lockout, history), Windows local security policies, network firewall inspection, BitLocker volume status checks, and CVSS v4.0 vulnerability scoring metrics.
+
+#### 🖥️ Task 4 Web UI Dashboard Preview
+![System Vulnerability Dashboard Preview](./Task-4-Priyanka/assets/web_preview.png)
